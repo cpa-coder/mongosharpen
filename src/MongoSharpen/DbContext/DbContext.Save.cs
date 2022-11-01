@@ -3,7 +3,7 @@ using MongoSharpen.Internal;
 
 namespace MongoSharpen;
 
-public sealed partial class DbContext
+internal sealed partial class DbContext
 {
     public Task SaveAsync<T>(T entity, CancellationToken cancellation = default) where T : IEntity
     {
@@ -32,10 +32,7 @@ public sealed partial class DbContext
             if (ForInsert(i))
                 models.Add(new InsertOneModel<T>(i));
             else
-                models.Add(new ReplaceOneModel<T>(
-                        Builders<T>.Filter.Eq(x => x.Id, i.Id),
-                        i)
-                    { IsUpsert = true });
+                models.Add(new ReplaceOneModel<T>(Builders<T>.Filter.Eq(x => x.Id, i.Id), i) { IsUpsert = true });
         }
 
         var options = new BulkWriteOptions { IsOrdered = false };

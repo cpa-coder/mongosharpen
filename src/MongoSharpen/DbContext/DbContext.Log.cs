@@ -4,7 +4,7 @@ using MongoSharpen.Internal;
 
 namespace MongoSharpen;
 
-public sealed partial class DbContext
+internal sealed partial class DbContext
 {
     private const string Log = "log";
 

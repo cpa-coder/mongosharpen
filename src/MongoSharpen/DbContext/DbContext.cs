@@ -4,7 +4,7 @@ using MongoSharpen.Internal;
 
 namespace MongoSharpen;
 
-public sealed partial class DbContext : IDbContext
+internal sealed partial class DbContext : IDbContext
 {
     private readonly IMongoClient _client;
     private readonly IMongoDatabase _database;
@@ -13,7 +13,7 @@ public sealed partial class DbContext : IDbContext
     IClientSessionHandle? IDbContext.Session => _session;
     IMongoDatabase IDbContext.Database => _database;
 
-    public DbContext(string database, string connectionString)
+    internal DbContext(string database, string connectionString)
     {
         _client = ContextHelper.GetClient(connectionString);
         _database = _client.GetDatabase(database);

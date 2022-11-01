@@ -3,7 +3,7 @@ using MongoSharpen.Builders;
 
 namespace MongoSharpen;
 
-public sealed partial class DbContext
+internal sealed partial class DbContext
 {
     public Find<T> Find<T>() where T : IEntity => new() { Context = this };
 

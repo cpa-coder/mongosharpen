@@ -3,7 +3,7 @@ using MongoSharpen.Builders;
 
 namespace MongoSharpen;
 
-public sealed partial class DbContext
+internal sealed partial class DbContext
 {
     public Delete<T> Delete<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
         where T : IEntity => new(expression) { Context = this };
