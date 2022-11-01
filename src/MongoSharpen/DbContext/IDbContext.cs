@@ -10,6 +10,7 @@ public interface IDbContext
     internal IMongoDatabase Database { get; }
     internal IClientSessionHandle? Session { get; set; }
 
+    Task<bool> ExistAsync();
     Transaction Transaction(ClientSessionOptions? options = null);
 
     Task SaveAsync<T>(T entity, CancellationToken cancellation = default)

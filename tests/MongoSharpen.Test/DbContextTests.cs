@@ -12,6 +12,21 @@ public class ContextCollection : ICollectionFixture<DbContextFixture>
 public partial class DbContextTests
 {
     [Fact]
+    public async Task exist_should_return_valid_result()
+    {
+        var libDb = DbFactory.Get("library");
+        var libraryExist = await libDb.ExistAsync();
+
+        libraryExist.Should().BeTrue();
+
+        var random = Guid.NewGuid().ToString();
+        var randomDb = DbFactory.Get(random);
+        var randomDbExist = await randomDb.ExistAsync();
+
+        randomDbExist.Should().BeFalse();
+    }
+
+    [Fact]
     public void start_transaction__session_should_not_be_null()
     {
         var randomDb = Guid.NewGuid().ToString();

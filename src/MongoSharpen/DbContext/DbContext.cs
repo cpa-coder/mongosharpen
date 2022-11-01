@@ -27,6 +27,24 @@ internal sealed partial class DbContext : IDbContext
         _database = _client.GetDatabase(database);
     }
 
+    public async Task<bool> ExistAsync()
+    {
+        var databases = await _client.ListDatabaseNamesAsync();
+        var exist = false;
+
+        var currentDb = _database.DatabaseNamespace;
+
+        while (await databases.MoveNextAsync())
+        {
+            var found = databases.Current.Any(s => s == currentDb.DatabaseName);
+            if (!found) continue;
+
+            exist = true;
+        }
+
+        return exist;
+    }
+
     public Transaction Transaction(ClientSessionOptions? options = null) => new(this, options);
 
     public Task DropDataBaseAsync(CancellationToken token = default)
