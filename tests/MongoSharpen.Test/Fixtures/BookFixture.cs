@@ -7,12 +7,12 @@ namespace MongoSharpen.Test.Fixtures;
 
 public class BookFixture : IAsyncLifetime
 {
-    public List<Book> Books { get; set; }
+    public List<Book> Books { get; set; } = new();
 
     public async Task InitializeAsync()
     {
         var ctx = DbFactory.Get("library");
-        ctx.StartTransaction();
+        using var trans = ctx.Transaction();
 
         var faker = new Faker();
 
@@ -34,8 +34,8 @@ public class BookFixture : IAsyncLifetime
                 ISBN = faker.Vehicle.Model(),
                 Authors = new List<Author>
                 {
-                    authors[faker.Random.Number(max: 4)],
-                    authors[faker.Random.Number(max: 4)],
+                    authors[faker.Random.Number(4)],
+                    authors[faker.Random.Number(4)]
                 }.ToImmutableList()
             };
             books.Add(book);
@@ -44,7 +44,7 @@ public class BookFixture : IAsyncLifetime
         Books = books;
 
         await ctx.SaveAsync(books);
-        await ctx.CommitAsync();
+        await trans.CommitAsync();
     }
 
     public Task DisposeAsync()

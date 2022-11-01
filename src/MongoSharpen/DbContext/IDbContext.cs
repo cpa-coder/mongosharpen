@@ -4,12 +4,13 @@ using MongoSharpen.Builders;
 
 namespace MongoSharpen;
 
-public interface IDbContext : IDisposable
+public interface IDbContext
 {
+    internal IMongoClient Client { get; }
     internal IMongoDatabase Database { get; }
-    internal IClientSessionHandle? Session { get; }
-    void StartTransaction(ClientSessionOptions? options = null);
-    Task CommitAsync(CancellationToken cancellation = default);
+    internal IClientSessionHandle? Session { get; set; }
+
+    Transaction Transaction(ClientSessionOptions? options = null);
 
     Task SaveAsync<T>(T entity, CancellationToken cancellation = default)
         where T : IEntity;
@@ -21,7 +22,7 @@ public interface IDbContext : IDisposable
 
     Find<T> Find<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
         where T : IEntity;
-    
+
     Find<T, TProjection> Find<T, TProjection>()
         where T : IEntity;
 

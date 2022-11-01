@@ -1,5 +1,6 @@
 ﻿using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using MongoSharpen.Builders;
 using MongoSharpen.Internal;
 
 namespace MongoSharpen;
@@ -10,7 +11,14 @@ internal sealed partial class DbContext : IDbContext
     private readonly IMongoDatabase _database;
     private IClientSessionHandle? _session;
 
-    IClientSessionHandle? IDbContext.Session => _session;
+    IMongoClient IDbContext.Client => _client;
+
+    IClientSessionHandle? IDbContext.Session
+    {
+        get => _session;
+        set => _session = value;
+    }
+
     IMongoDatabase IDbContext.Database => _database;
 
     internal DbContext(string database, string connectionString)
@@ -19,26 +27,7 @@ internal sealed partial class DbContext : IDbContext
         _database = _client.GetDatabase(database);
     }
 
-    public void StartTransaction(ClientSessionOptions? options = null)
-    {
-        if (_session != null)
-            throw new InvalidOperationException("Transaction already started");
-
-        _session = _client.StartSession(options);
-        _session.StartTransaction();
-    }
-
-    public async Task CommitAsync(CancellationToken cancellation = default)
-    {
-        if (_session == null)
-            throw new InvalidOperationException("No transaction started");
-
-        await _session.CommitTransactionAsync(cancellation);
-
-        // to be able to start a new transaction with the same db context
-        _session.Dispose();
-        _session = null;
-    }
+    public Transaction Transaction(ClientSessionOptions? options = null) => new(this, options);
 
     public Task DropDataBaseAsync(CancellationToken token = default)
     {
@@ -48,9 +37,4 @@ internal sealed partial class DbContext : IDbContext
 
     public IMongoQueryable<T> Queryable<T>() where T : IEntity => Cache<T>.GetCollection(this).AsQueryable(_session);
     public IMongoCollection<T> Collection<T>() where T : IEntity => Cache<T>.GetCollection(this);
-
-    public void Dispose()
-    {
-        _session?.Dispose();
-    }
 }
