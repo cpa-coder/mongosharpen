@@ -34,7 +34,7 @@ public sealed class Find<T> where T : IEntity
         return this;
     }
 
-    public Find<T> Take(int take)
+    public Find<T> Limit(int take)
     {
         _options.Limit = take;
         return this;
@@ -64,7 +64,7 @@ public sealed class Find<T> where T : IEntity
 
     public async Task<T> ExecuteSingleAsync(CancellationToken cancellation = default)
     {
-        Take(2); //use take 2 to check if there is more than 1 document
+        Limit(2); //use take 2 to check if there is more than 1 document
 
         using var cursor = await ExecuteCursorAsync(cancellation).ConfigureAwait(false);
         await cursor.MoveNextAsync(cancellation).ConfigureAwait(false);
@@ -73,7 +73,7 @@ public sealed class Find<T> where T : IEntity
 
     public async Task<T> ExecuteFirstAsync(CancellationToken cancellation = default)
     {
-        Take(1); //to prevent fetching more documents than needed
+        Limit(1); //to prevent fetching more documents than needed
 
         using var cursor = await ExecuteCursorAsync(cancellation).ConfigureAwait(false);
         await cursor.MoveNextAsync(cancellation).ConfigureAwait(false);
@@ -130,7 +130,7 @@ public sealed class Find<T, TProjection> where T : IEntity
         return this;
     }
 
-    public Find<T, TProjection> Take(int take)
+    public Find<T, TProjection> Limit(int take)
     {
         _options.Limit = take;
         return this;
@@ -145,15 +145,6 @@ public sealed class Find<T, TProjection> where T : IEntity
             return p.Expression(expression);
         }
         _options.Projection = Projection(Builders<T>.Projection);
-
-        return this;
-    }
-
-    public Find<T, TProjection> Project(
-        Func<ProjectionDefinitionBuilder<T>, ProjectionDefinition<T, TProjection>> projection)
-    {
-        if (_options.Projection != null) throw new InvalidOperationException("Projection already set");
-        _options.Projection = projection(Builders<T>.Projection);
 
         return this;
     }
@@ -184,7 +175,7 @@ public sealed class Find<T, TProjection> where T : IEntity
 
     public async Task<TProjection> ExecuteSingleAsync(CancellationToken cancellation = default)
     {
-        Take(2); //use take 2 to check if there is more than 1 document
+        Limit(2); //use take 2 to check if there is more than 1 document
 
         using var cursor = await ExecuteCursorAsync(cancellation).ConfigureAwait(false);
         await cursor.MoveNextAsync(cancellation).ConfigureAwait(false);
@@ -193,7 +184,7 @@ public sealed class Find<T, TProjection> where T : IEntity
 
     public async Task<TProjection> ExecuteFirstAsync(CancellationToken cancellation = default)
     {
-        Take(1); //to prevent fetching more documents than needed
+        Limit(1); //to prevent fetching more documents than needed
 
         using var cursor = await ExecuteCursorAsync(cancellation).ConfigureAwait(false);
         await cursor.MoveNextAsync(cancellation).ConfigureAwait(false);

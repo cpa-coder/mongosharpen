@@ -17,6 +17,11 @@ public interface IDbContext : IDisposable
     Task SaveAsync<T>(IEnumerable<T> entities, CancellationToken cancellation = default)
         where T : IEntity;
 
+    Find<T> Find<T>() where T : IEntity;
+
+    Find<T> Find<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
+        where T : IEntity;
+    
     Find<T, TProjection> Find<T, TProjection>()
         where T : IEntity;
 
