@@ -58,4 +58,20 @@ public partial class DbContextTests
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => trans.CommitAsync());
     }
+    
+    [Fact]
+    public async Task drop_database__should_delete_database()
+    {
+        var random = Guid.NewGuid().ToString();
+        var ctx = DbFactory.Get(random);
+        await ctx.Database.CreateCollectionAsync("test-collection");
+
+        var initiallyExist = await ctx.ExistAsync();
+        initiallyExist.Should().BeTrue();
+    
+        await ctx.DropDataBaseAsync();
+
+        var finallyExist = await ctx.ExistAsync();
+        finallyExist.Should().BeFalse();
+    }
 }
