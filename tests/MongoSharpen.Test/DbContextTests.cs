@@ -1,4 +1,7 @@
 ﻿using FluentAssertions;
+using MongoDB.Driver;
+using MongoSharpen.Internal;
+using MongoSharpen.Test.Entities;
 using MongoSharpen.Test.Fixtures;
 using Xunit;
 
@@ -42,10 +45,7 @@ public partial class DbContextTests
         var ctx = DbFactory.Get(randomDb);
         using var trans = ctx.Transaction();
 
-        Assert.Throws<InvalidOperationException>(() =>
-        {
-            using var newTrans = ctx.Transaction();
-        });
+        Assert.Throws<InvalidOperationException>(() => ctx.Transaction());
     }
 
     [Fact]
@@ -73,5 +73,25 @@ public partial class DbContextTests
 
         var finallyExist = await ctx.ExistAsync();
         finallyExist.Should().BeFalse();
+    }
+    
+    [Fact]
+    public void queryable__should_return_queryable_of_type_with_the_same_db_context()
+    {
+        var ctx = DbFactory.Get("library");
+        var query = ctx.Queryable<Book>();
+
+        var internalQueryable = Cache<Book>.GetCollection(ctx).AsQueryable(ctx.Session);
+        query.Should().BeEquivalentTo(internalQueryable);
+    }
+
+    [Fact]
+    public void collection__should_return_collection_of_type_with_the_same_db_context()
+    {
+        var ctx = DbFactory.Get("library");
+        var collection = ctx.Collection<Book>();
+
+        var internalCollection = Cache<Book>.GetCollection(ctx);
+        collection.Should().BeEquivalentTo(internalCollection);
     }
 }

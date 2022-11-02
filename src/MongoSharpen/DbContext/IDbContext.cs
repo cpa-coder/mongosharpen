@@ -43,6 +43,6 @@ public interface IDbContext
         where T : IEntity;
 
     Task DropDataBaseAsync(CancellationToken token = default);
-    IMongoQueryable<T> Queryable<T>() where T : IEntity;
     IMongoCollection<T> Collection<T>() where T : IEntity;
+    IMongoQueryable<T> Queryable<T>(ClientSessionOptions? options = null) where T : IEntity;
 }

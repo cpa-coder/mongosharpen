@@ -53,6 +53,11 @@ internal sealed partial class DbContext : IDbContext
         return _client.DropDatabaseAsync(database.DatabaseName, token);
     }
 
-    public IMongoQueryable<T> Queryable<T>() where T : IEntity => Cache<T>.GetCollection(this).AsQueryable(_session);
     public IMongoCollection<T> Collection<T>() where T : IEntity => Cache<T>.GetCollection(this);
+
+    public IMongoQueryable<T> Queryable<T>(ClientSessionOptions? options = null) where T : IEntity
+    {
+        _session = _client.StartSession(options);
+        return Cache<T>.GetCollection(this).AsQueryable(_session);
+    }
 }
