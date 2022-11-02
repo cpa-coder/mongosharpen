@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoSharpen.Test.Entities;

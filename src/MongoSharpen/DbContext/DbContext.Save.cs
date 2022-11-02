@@ -7,9 +7,7 @@ internal sealed partial class DbContext
 {
     public Task SaveAsync<T>(T entity, CancellationToken cancellation = default) where T : IEntity
     {
-        PrepareProperties(entity);
-
-        return ForInsert(entity)
+        return PrepareAndForInsert(entity)
             ? _session == null
                 ? Cache<T>.GetCollection(this).InsertOneAsync(entity, null, cancellation)
                 : Cache<T>.GetCollection(this).InsertOneAsync(_session, entity, null, cancellation)
@@ -27,9 +25,7 @@ internal sealed partial class DbContext
 
         foreach (var i in list)
         {
-            PrepareProperties(i);
-
-            if (ForInsert(i))
+            if (PrepareAndForInsert(i))
                 models.Add(new InsertOneModel<T>(i));
             else
                 models.Add(new ReplaceOneModel<T>(Builders<T>.Filter.Eq(x => x.Id, i.Id), i) { IsUpsert = true });
@@ -42,22 +38,26 @@ internal sealed partial class DbContext
             : Cache<T>.GetCollection(this).BulkWriteAsync(_session, models, options, cancellation);
     }
 
-    private static bool ForInsert<T>(T entity) where T : IEntity => string.IsNullOrEmpty(entity.Id);
-
-    private static void PrepareProperties<T>(T entity) where T : IEntity
+    private static bool PrepareAndForInsert<T>(T entity) where T : IEntity
     {
-        if (ForInsert(entity))
+        if (string.IsNullOrEmpty(entity.Id))
         {
             entity.Id = entity.GenerateId();
-            if (!Cache<T>.Get().HasCreatedOn) return;
 
-            var createdOn = (ICreatedOn) entity;
-            createdOn.CreatedOn = DateTime.UtcNow;
+            if (Cache<T>.Get().HasCreatedOn)
+            {
+                var createdOn = (ICreatedOn) entity;
+                createdOn.CreatedOn = DateTime.UtcNow;
+            }
+
+            return true;
         }
 
-        if (!Cache<T>.Get().HasModifiedOn) return;
-
-        var modifiedOn = (IModifiedOn) entity;
-        modifiedOn.ModifiedOn = DateTime.UtcNow;
+        if (Cache<T>.Get().HasModifiedOn)
+        {
+            var modifiedOn = (IModifiedOn) entity;
+            modifiedOn.ModifiedOn = DateTime.UtcNow;
+        }
+        return false;
     }
 }
