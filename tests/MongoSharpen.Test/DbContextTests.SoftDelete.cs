@@ -242,4 +242,18 @@ public partial class DbContextTests
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             ctx.SoftDelete<Book, BookDto>(x => x.MatchId(userId)).ExecuteAndGetAsync(userId));
     }
+    
+    [Fact]
+    public async Task soft_delete_with_projection__when_multiple_projection_setup__should_throw_exception()
+    {
+        var random = Guid.NewGuid().ToString();
+        var ctx = DbFactory.Get(random);
+
+        var userId = ObjectId.GenerateNewId().ToString();
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            ctx.SoftDelete<Book, BookDto>(x => x.MatchId(userId))
+                .Project(x=> new BookDto())
+                .Project(x=> new BookDto())
+                .ExecuteAndGetAsync(userId));
+    }
 }
