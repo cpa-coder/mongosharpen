@@ -8,27 +8,50 @@ public sealed class Delete<T> where T : IEntity
 {
     internal IDbContext Context { get; set; } = null!;
 
-    private readonly FilterDefinition<T> _filters;
+    private FilterDefinition<T> _filters;
 
     public Delete(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
     {
         _filters = filter.Invoke(Builders<T>.Filter);
     }
 
-    public Task<DeleteResult> ExecuteManyAsync(CancellationToken token) =>
-        Context.Session == null
+    public Task<DeleteResult> ExecuteManyAsync(bool forceDelete = false, CancellationToken token = default)
+    {
+        if (!forceDelete && Cache<T>.Get().ForSystemGeneration)
+            _filters &= Builders<T>.Filter.Eq(x => ((ISystemGenerated) x).SystemGenerated, false);
+
+        return Context.Session == null
             ? Cache<T>.GetCollection(Context).DeleteManyAsync(_filters, token)
             : Cache<T>.GetCollection(Context).DeleteManyAsync(Context.Session, _filters, cancellationToken: token);
+    }
 
-    public Task<DeleteResult> ExecuteOneAsync(CancellationToken token) =>
-        Context.Session == null
+    public Task<DeleteResult> ExecuteOneAsync(bool forceDelete = false, CancellationToken token = default)
+    {
+        if (!forceDelete && Cache<T>.Get().ForSystemGeneration)
+            _filters &= Builders<T>.Filter.Eq(x => ((ISystemGenerated) x).SystemGenerated, false);
+
+        return Context.Session == null
             ? Cache<T>.GetCollection(Context).DeleteOneAsync(_filters, token)
             : Cache<T>.GetCollection(Context).DeleteOneAsync(Context.Session, _filters, cancellationToken: token);
+    }
 
-    public Task<T> GetAndExecuteAsync(CancellationToken token) =>
-        Context.Session == null
-            ? Cache<T>.GetCollection(Context).FindOneAndDeleteAsync(_filters, cancellationToken: token)
-            : Cache<T>.GetCollection(Context).FindOneAndDeleteAsync(Context.Session, _filters, cancellationToken: token);
+    public async Task<T> GetAndExecuteAsync(bool forceDelete = false, CancellationToken token = default)
+    {
+        if (!forceDelete && Cache<T>.Get().ForSystemGeneration)
+            _filters &= Builders<T>.Filter.Eq(x => ((ISystemGenerated) x).SystemGenerated, false);
+
+        T result;
+
+        if (Context.Session == null)
+            result = await Cache<T>.GetCollection(Context).FindOneAndDeleteAsync(_filters, null, token);
+        else
+            result = await Cache<T>.GetCollection(Context).FindOneAndDeleteAsync(Context.Session, _filters, null, token);
+
+        if (result == null)
+            throw new InvalidOperationException("No item deleted");
+
+        return result;
+    }
 }
 
 public sealed class Delete<T, TProjection> where T : IEntity
@@ -57,23 +80,23 @@ public sealed class Delete<T, TProjection> where T : IEntity
         return this;
     }
 
-    public Delete<T, TProjection> Project(Func<ProjectionDefinitionBuilder<T>, ProjectionDefinition<T, TProjection>> projection)
-    {
-        if (_options.Projection != null) throw new InvalidOperationException("Projection already set");
-
-        _options.Projection = projection(Builders<T>.Projection);
-        return this;
-    }
-
-    public Task<TProjection> GetAndExecuteAsync(CancellationToken token)
+    public async Task<TProjection> GetAndExecuteAsync(bool forceDelete = false, CancellationToken token = default)
     {
         if (_options.Projection == null) throw new InvalidOperationException("Projection not set");
 
-        if (Cache<T>.Get().ForSystemGeneration)
+        if (!forceDelete && Cache<T>.Get().ForSystemGeneration)
             _filters &= Builders<T>.Filter.Eq(x => ((ISystemGenerated) x).SystemGenerated, false);
 
-        return Context.Session == null
-            ? Cache<T>.GetCollection(Context).FindOneAndDeleteAsync(_filters, _options, token)
-            : Cache<T>.GetCollection(Context).FindOneAndDeleteAsync(Context.Session, _filters, _options, token);
+        TProjection result;
+
+        if (Context.Session == null)
+            result = await Cache<T>.GetCollection(Context).FindOneAndDeleteAsync(_filters, _options, token);
+        else
+            result = await Cache<T>.GetCollection(Context).FindOneAndDeleteAsync(Context.Session, _filters, _options, token);
+
+        if (result == null)
+            throw new InvalidOperationException("No item deleted");
+
+        return result;
     }
 }

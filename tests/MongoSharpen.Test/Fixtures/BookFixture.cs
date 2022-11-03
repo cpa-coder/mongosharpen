@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using Bogus;
 using MongoSharpen.Test.Entities;
 using Xunit;
@@ -36,7 +35,7 @@ public class BookFixture : IAsyncLifetime
                 {
                     authors[faker.Random.Number(4)],
                     authors[faker.Random.Number(4)]
-                }.ToImmutableList()
+                }
             };
             books.Add(book);
         }
