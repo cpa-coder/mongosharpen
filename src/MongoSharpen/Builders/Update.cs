@@ -84,18 +84,9 @@ public sealed class Update<T, TProjection> where T : IEntity
         return this;
     }
 
-    public Update<T, TProjection> Project(
-        Func<ProjectionDefinitionBuilder<T>, ProjectionDefinition<T, TProjection>> projection)
-    {
-        if (_options.Projection != null) throw new InvalidOperationException("Projection already set");
-        _options.Projection = projection(Builders<T>.Projection);
-
-        return this;
-    }
-
     public Task<TProjection> ExecuteAndGetAsync(CancellationToken token = default)
     {
-        if (_options.Projection == null) throw new InvalidOperationException("Make sure to set a projection before executing");
+        if (_options.Projection == null) throw new InvalidOperationException("Projection not set");
 
         if (Cache<T>.Get().HasModifiedOn) _updates.Set(b => b.CurrentDate(Cache<T>.Get().ModifiedOnPropName));
 

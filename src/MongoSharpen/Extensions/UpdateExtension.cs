@@ -12,13 +12,6 @@ public static class UpdateExtension
         return updates;
     }
 
-    public static List<UpdateDefinition<T>> Set<T>(this List<UpdateDefinition<T>> updates,
-        Func<UpdateDefinitionBuilder<T>, UpdateDefinition<T>> operation) where T : IEntity
-    {
-        updates.Add(operation(Builders<T>.Update));
-        return updates;
-    }
-
     public static List<UpdateDefinition<T>> Set<T, TProp>(this List<UpdateDefinition<T>> updates,
         Expression<Func<T, TProp>> property, TProp value) where T : IEntity
     {
@@ -26,9 +19,10 @@ public static class UpdateExtension
         return updates;
     }
 
-    public static List<UpdateDefinition<T>> Set<T>(this List<UpdateDefinition<T>> updates, string operation) where T : IEntity
+    internal static List<UpdateDefinition<T>> Set<T>(this List<UpdateDefinition<T>> updates,
+        Func<UpdateDefinitionBuilder<T>, UpdateDefinition<T>> operation) where T : IEntity
     {
-        updates.Add(operation);
+        updates.Add(operation(Builders<T>.Update));
         return updates;
     }
 }

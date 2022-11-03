@@ -9,6 +9,7 @@ public class Book : Entity, ICreatedOn, IModifiedOn
 
     [BsonElement("ISBN")]
     public string ISBN { get; set; }
+
     public IEnumerable<Author> Authors { get; set; }
     public CreatedBy CreatedBy { get; set; }
     public DateTime CreatedOn { get; set; }

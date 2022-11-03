@@ -15,7 +15,7 @@ public class ContextCollection : ICollectionFixture<DbContextFixture>
 public partial class DbContextTests
 {
     [Fact]
-    public async Task exist_should_return_valid_result()
+    public async Task exist__should_return_valid_result()
     {
         var libDb = DbFactory.Get("library");
         var libraryExist = await libDb.ExistAsync();
