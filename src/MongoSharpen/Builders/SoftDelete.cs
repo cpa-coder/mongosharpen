@@ -6,14 +6,14 @@ namespace MongoSharpen.Builders;
 
 public class SoftDelete<T> where T : IEntity, ISoftDelete
 {
-    internal IDbContext Context { get; set; } = null!;
-
+    private readonly IDbContext _context;
     private FilterDefinition<T> _filters;
     private readonly List<UpdateDefinition<T>> _updates = new();
     private readonly FindOneAndUpdateOptions<T, T> _options = new() { ReturnDocument = ReturnDocument.After };
 
-    public SoftDelete(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
+    public SoftDelete(IDbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
     {
+        _context = context;
         _filters = expression(Builders<T>.Filter);
     }
 
@@ -26,8 +26,8 @@ public class SoftDelete<T> where T : IEntity, ISoftDelete
         _updates.Set(t => t.DeletedBy, new DeletedBy { Id = userId });
         _updates.Set(t => t.DeletedOn, DateTime.UtcNow);
 
-        var session = Context.Session;
-        var collection = Cache<T>.GetCollection(Context);
+        var session = _context.Session;
+        var collection = Cache<T>.GetCollection(_context);
         var definition = Builders<T>.Update.Combine(_updates);
 
         var result = session == null
@@ -46,8 +46,8 @@ public class SoftDelete<T> where T : IEntity, ISoftDelete
         _updates.Set(t => t.DeletedBy, new DeletedBy { Id = userId });
         _updates.Set(t => t.DeletedOn, DateTime.UtcNow);
 
-        var session = Context.Session;
-        var collection = Cache<T>.GetCollection(Context);
+        var session = _context.Session;
+        var collection = Cache<T>.GetCollection(_context);
         var definition = Builders<T>.Update.Combine(_updates);
 
         var result = session == null
@@ -66,8 +66,8 @@ public class SoftDelete<T> where T : IEntity, ISoftDelete
         _updates.Set(t => t.DeletedBy, new DeletedBy { Id = userId });
         _updates.Set(t => t.DeletedOn, DateTime.UtcNow);
 
-        var session = Context.Session;
-        var collection = Cache<T>.GetCollection(Context);
+        var session = _context.Session;
+        var collection = Cache<T>.GetCollection(_context);
         var definition = Builders<T>.Update.Combine(_updates);
 
         return session == null
@@ -78,14 +78,14 @@ public class SoftDelete<T> where T : IEntity, ISoftDelete
 
 public class SoftDelete<T, TProjection> where T : IEntity, ISoftDelete
 {
-    internal IDbContext Context { get; set; } = null!;
-
+    private readonly IDbContext _context;
     private FilterDefinition<T> _filters;
     private readonly List<UpdateDefinition<T>> _updates = new();
     private readonly FindOneAndUpdateOptions<T, TProjection> _options = new() { ReturnDocument = ReturnDocument.After };
 
-    public SoftDelete(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
+    public SoftDelete(IDbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
     {
+        _context = context;
         _filters = expression(Builders<T>.Filter);
     }
 
@@ -113,8 +113,8 @@ public class SoftDelete<T, TProjection> where T : IEntity, ISoftDelete
         _updates.Set(t => t.DeletedBy, new DeletedBy { Id = userId });
         _updates.Set(t => t.DeletedOn, DateTime.UtcNow);
 
-        var session = Context.Session;
-        var collection = Cache<T>.GetCollection(Context);
+        var session = _context.Session;
+        var collection = Cache<T>.GetCollection(_context);
         var definition = Builders<T>.Update.Combine(_updates);
 
         return session == null

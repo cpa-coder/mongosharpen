@@ -6,14 +6,14 @@ namespace MongoSharpen.Builders;
 
 public sealed class Update<T> where T : IEntity
 {
-    internal IDbContext Context { get; set; } = null!;
-
+    private readonly IDbContext _context;
     private readonly FilterDefinition<T> _filters;
     private readonly List<UpdateDefinition<T>> _updates = new();
     private readonly FindOneAndUpdateOptions<T, T> _options;
 
-    public Update(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
+    public Update(IDbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
     {
+        _context = context;
         _filters = filter.Invoke(Builders<T>.Filter);
         _options = new FindOneAndUpdateOptions<T, T> { ReturnDocument = ReturnDocument.After };
     }
@@ -28,8 +28,8 @@ public sealed class Update<T> where T : IEntity
     {
         if (Cache<T>.Get().HasModifiedOn) _updates.Set(b => b.CurrentDate(Cache<T>.Get().ModifiedOnPropName));
 
-        var session = Context.Session;
-        var collection = Cache<T>.GetCollection(Context);
+        var session = _context.Session;
+        var collection = Cache<T>.GetCollection(_context);
         var definition = Builders<T>.Update.Combine(_updates);
 
         return session == null
@@ -41,8 +41,8 @@ public sealed class Update<T> where T : IEntity
     {
         if (Cache<T>.Get().HasModifiedOn) _updates.Set(b => b.CurrentDate(Cache<T>.Get().ModifiedOnPropName));
 
-        var session = Context.Session;
-        var collection = Cache<T>.GetCollection(Context);
+        var session = _context.Session;
+        var collection = Cache<T>.GetCollection(_context);
         var update = Builders<T>.Update.Combine(_updates);
 
         return session == null
@@ -53,14 +53,14 @@ public sealed class Update<T> where T : IEntity
 
 public sealed class Update<T, TProjection> where T : IEntity
 {
-    internal IDbContext Context { get; set; } = null!;
-
+    private readonly IDbContext _context;
     private readonly FilterDefinition<T> _filters;
     private readonly List<UpdateDefinition<T>> _updates = new();
     private readonly FindOneAndUpdateOptions<T, TProjection> _options;
 
-    public Update(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
+    public Update(IDbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
     {
+        _context = context;
         _filters = filter.Invoke(Builders<T>.Filter);
         _options = new FindOneAndUpdateOptions<T, TProjection> { ReturnDocument = ReturnDocument.After };
     }
@@ -90,8 +90,8 @@ public sealed class Update<T, TProjection> where T : IEntity
 
         if (Cache<T>.Get().HasModifiedOn) _updates.Set(b => b.CurrentDate(Cache<T>.Get().ModifiedOnPropName));
 
-        var session = Context.Session;
-        var collection = Cache<T>.GetCollection(Context);
+        var session = _context.Session;
+        var collection = Cache<T>.GetCollection(_context);
         var update = Builders<T>.Update.Combine(_updates);
 
         return session == null

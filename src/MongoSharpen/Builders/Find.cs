@@ -6,19 +6,20 @@ namespace MongoSharpen.Builders;
 
 public sealed class Find<T> where T : IEntity
 {
-    internal IDbContext Context { get; set; } = null!;
-
+    private readonly IDbContext _context;
     private FilterDefinition<T> _filters;
     private readonly List<SortDefinition<T>> _sorts = new();
     private readonly FindOptions<T, T> _options = new();
 
-    public Find()
+    public Find(IDbContext context)
     {
+        _context = context;
         _filters = Builders<T>.Filter.Empty;
     }
 
-    public Find(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
+    public Find(IDbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
     {
+        _context = context;
         _filters = filter.Invoke(Builders<T>.Filter);
     }
 
@@ -45,8 +46,8 @@ public sealed class Find<T> where T : IEntity
         if (_sorts.Count > 0)
             _options.Sort = Builders<T>.Sort.Combine(_sorts);
 
-        var collection = Cache<T>.GetCollection(Context);
-        var session = Context.Session;
+        var collection = Cache<T>.GetCollection(_context);
+        var session = _context.Session;
 
         return session == null
             ? collection.FindAsync(_filters, _options, cancellation)
@@ -102,19 +103,20 @@ public sealed class Find<T> where T : IEntity
 
 public sealed class Find<T, TProjection> where T : IEntity
 {
-    internal IDbContext Context { get; set; } = null!;
-
+    private readonly IDbContext _context;
     private FilterDefinition<T> _filters;
     private readonly List<SortDefinition<T>> _sorts = new();
     private readonly FindOptions<T, TProjection> _options = new();
 
-    public Find()
+    public Find(IDbContext context)
     {
+        _context = context;
         _filters = Builders<T>.Filter.Empty;
     }
 
-    public Find(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
+    public Find(IDbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
     {
+        _context = context;
         _filters = filter.Invoke(Builders<T>.Filter);
     }
 
@@ -156,8 +158,8 @@ public sealed class Find<T, TProjection> where T : IEntity
         if (_sorts.Count > 0)
             _options.Sort = Builders<T>.Sort.Combine(_sorts);
 
-        var collection = Cache<T>.GetCollection(Context);
-        var session = Context.Session;
+        var collection = Cache<T>.GetCollection(_context);
+        var session = _context.Session;
 
         return session == null
             ? collection.FindAsync(_filters, _options, cancellation)
