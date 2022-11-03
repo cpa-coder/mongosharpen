@@ -41,12 +41,24 @@ public interface IDbContext
 
     Delete<T, TProjection> Delete<T, TProjection>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
         where T : IEntity;
-    
+
     SoftDelete<T> SoftDelete<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
         where T : IEntity, ISoftDelete;
 
     SoftDelete<T, TProjection> SoftDelete<T, TProjection>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
         where T : IEntity, ISoftDelete;
+
+    Task LogAsync<T>(string id, CancellationToken token = default)
+        where T : IEntity;
+
+    Task LogAsync<T>(T entity, CancellationToken token = default)
+        where T : IEntity;
+
+    Task LogAsync<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression, CancellationToken token = default)
+        where T : IEntity;
+
+    Task LogAsync<T>(IEnumerable<T> entities, CancellationToken token = default)
+        where T : IEntity;
 
     Task DropDataBaseAsync(CancellationToken token = default);
     IMongoCollection<T> Collection<T>() where T : IEntity;
