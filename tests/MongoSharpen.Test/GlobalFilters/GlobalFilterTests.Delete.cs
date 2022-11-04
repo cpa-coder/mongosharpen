@@ -1,16 +1,16 @@
-using Bogus;
+﻿using Bogus;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoSharpen.Test.Dtos;
 using MongoSharpen.Test.Entities;
 using Xunit;
 
-namespace MongoSharpen.Test;
+namespace MongoSharpen.Test.GlobalFilters;
 
 public sealed partial class GlobalFilterTests
 {
     [Fact]
-    public async Task global_filter_json__on_update_and_execute__should_not_update_filtered_item()
+    public async Task global_filter_json__on_delete_and_execute_one__should_not_delete_filtered_item()
     {
         var conn = Environment.GetEnvironmentVariable("MONGOSHARPEN") ?? "mongodb://localhost:27107";
         var factory = new DbFactoryInternal(new ConventionRegistryWrapper()) { DefaultConnection = conn };
@@ -18,32 +18,24 @@ public sealed partial class GlobalFilterTests
         factory.SetGlobalFilter<ISoftDelete>("{ deleted : false }");
 
         var faker = new Faker();
-        var books = new List<Book>();
-        for (var i = 1; i <= 10; i++)
+        var book = new Book
         {
-            var oddOrEven = i % 2 != 0 ? "odd" : "even";
-            var book = new Book
-            {
-                Title = $"{oddOrEven}-{faker.Commerce.Department()}",
-                ISBN = faker.Vehicle.Model(),
-                Deleted = faker.Random.Bool()
-            };
-            books.Add(book);
-        }
+            Title = $"Title-{faker.Commerce.Department()}",
+            ISBN = faker.Vehicle.Model(),
+            Deleted = true
+        };
 
         var context = factory.Get(Guid.NewGuid().ToString());
-        await context.SaveAsync(books);
+        await context.SaveAsync(book);
 
-        var result = await context.Update<Book>(x => x.Match(i => i.Title.Contains("-")))
-            .Modify(x => x.Set(i => i.Title, $"edited-{faker.Commerce.Department()}"))
-            .ExecuteAsync();
+        var result = await context.Delete<Book>(x => x.Match(i => i.Title.Contains("-"))).ExecuteOneAsync();
         await context.DropDataBaseAsync();
 
-        result.ModifiedCount.Should().Be(books.Count(x => !x.Deleted));
+        result.DeletedCount.Should().Be(0);
     }
 
     [Fact]
-    public async Task global_filter_definition__on_update_and_execute__should_not_update_filtered_item()
+    public async Task global_filter_definition__on_delete_and_execute_many__should_not_delete_filtered_item()
     {
         var conn = Environment.GetEnvironmentVariable("MONGOSHARPEN") ?? "mongodb://localhost:27107";
         var factory = new DbFactoryInternal(new ConventionRegistryWrapper()) { DefaultConnection = conn };
@@ -67,16 +59,14 @@ public sealed partial class GlobalFilterTests
         var context = factory.Get(Guid.NewGuid().ToString());
         await context.SaveAsync(books);
 
-        var result = await context.Update<Book>(x => x.Match(i => i.Title.Contains("-")))
-            .Modify(x => x.Set(i => i.Title, $"edited-{faker.Commerce.Department()}"))
-            .ExecuteAsync();
+        var result = await context.Delete<Book>(x => x.Match(i => i.Title.Contains("-"))).ExecuteManyAsync();
         await context.DropDataBaseAsync();
 
-        result.ModifiedCount.Should().Be(books.Count(x => !x.Deleted));
+        result.DeletedCount.Should().Be(books.Count(x => !x.Deleted));
     }
 
     [Fact]
-    public async Task global_bson_document__on_update_and_execute__should_not_update_filtered_item()
+    public async Task global_bson_document__on_delete_and_get_and_execute__should_not_delete_filtered_item()
     {
         var conn = Environment.GetEnvironmentVariable("MONGOSHARPEN") ?? "mongodb://localhost:27107";
         var factory = new DbFactoryInternal(new ConventionRegistryWrapper()) { DefaultConnection = conn };
@@ -84,32 +74,24 @@ public sealed partial class GlobalFilterTests
         factory.SetGlobalFilter<Book>(new BsonDocument(new BsonElement("deleted", false)));
 
         var faker = new Faker();
-        var books = new List<Book>();
-        for (var i = 1; i <= 10; i++)
+        var book = new Book
         {
-            var oddOrEven = i % 2 != 0 ? "odd" : "even";
-            var book = new Book
-            {
-                Title = $"{oddOrEven}-{faker.Commerce.Department()}",
-                ISBN = faker.Vehicle.Model(),
-                Deleted = faker.Random.Bool()
-            };
-            books.Add(book);
-        }
+            Title = $"Title-{faker.Commerce.Department()}",
+            ISBN = faker.Vehicle.Model(),
+            Deleted = true
+        };
 
         var context = factory.Get(Guid.NewGuid().ToString());
-        await context.SaveAsync(books);
+        await context.SaveAsync(book);
 
-        var result = await context.Update<Book>(x => x.Match(i => i.Title.Contains("-")))
-            .Modify(x => x.Set(i => i.Title, $"edited-{faker.Commerce.Department()}"))
-            .ExecuteAsync();
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            context.Delete<Book>(x => x.Match(i => i.Title.Contains("-"))).GetAndExecuteAsync());
+
         await context.DropDataBaseAsync();
-
-        result.ModifiedCount.Should().Be(books.Count(x => !x.Deleted));
     }
 
     [Fact]
-    public async Task global_filter_json__on_update_execute_and_get_with_projection_and_execute__should_not_update_filtered_item()
+    public async Task global_filter_json__on_delete_execute_and_get_with_projection_and_execute__should_not_delete_filtered_item()
     {
         var conn = Environment.GetEnvironmentVariable("MONGOSHARPEN") ?? "mongodb://localhost:27107";
         var factory = new DbFactoryInternal(new ConventionRegistryWrapper()) { DefaultConnection = conn };
@@ -127,12 +109,11 @@ public sealed partial class GlobalFilterTests
         var context = factory.Get(Guid.NewGuid().ToString());
         await context.SaveAsync(book);
 
-        var result = await context.Update<Book, BookDto>(x => x.MatchId(book.Id))
-            .Modify(x => x.Set(i => i.Title, $"edited-{faker.Commerce.Department()}"))
-            .Project(x => new BookDto())
-            .ExecuteAndGetAsync();
-        await context.DropDataBaseAsync();
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            context.Delete<Book, BookDto>(x => x.MatchId(book.Id))
+                .Project(x => new BookDto())
+                .GetAndExecuteAsync());
 
-        result.Should().BeNull();
+        await context.DropDataBaseAsync();
     }
 }

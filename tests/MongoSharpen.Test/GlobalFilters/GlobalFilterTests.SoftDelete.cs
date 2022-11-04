@@ -5,7 +5,7 @@ using MongoSharpen.Test.Dtos;
 using MongoSharpen.Test.Entities;
 using Xunit;
 
-namespace MongoSharpen.Test;
+namespace MongoSharpen.Test.GlobalFilters;
 
 public sealed partial class GlobalFilterTests
 {

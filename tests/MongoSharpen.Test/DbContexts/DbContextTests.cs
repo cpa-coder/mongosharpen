@@ -5,7 +5,7 @@ using MongoSharpen.Test.Entities;
 using MongoSharpen.Test.Fixtures;
 using Xunit;
 
-namespace MongoSharpen.Test;
+namespace MongoSharpen.Test.DbContexts;
 
 [CollectionDefinition("db-context")]
 public class ContextCollection : ICollectionFixture<DbContextFixture>

@@ -5,7 +5,7 @@ using MongoSharpen.Internal;
 using MongoSharpen.Test.Entities;
 using Xunit;
 
-namespace MongoSharpen.Test;
+namespace MongoSharpen.Test.DbContexts;
 
 public partial class DbContextTests
 {
