@@ -17,7 +17,7 @@ public sealed partial class GlobalFilterTests
     }
 
     [Fact]
-    public void merge_whit_global_filter__when_no_filter_setup__should_return_filter()
+    public void merge_with_global_filter__when_no_filter_setup__should_return_filter()
     {
         var conn = Environment.GetEnvironmentVariable("MONGOSHARPEN") ?? "mongodb://localhost:27107";
         var factory = new DbFactoryInternal(new ConventionRegistryWrapper()) { DefaultConnection = conn };

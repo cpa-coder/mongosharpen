@@ -128,6 +128,6 @@ internal sealed class DbFactoryInternal
     internal void SetGlobalFilter<T>(FilterDefinition<T> filter, bool prepend = false) where T : IEntity =>
         _globalFilter.Set(filter, prepend);
 
-    internal void SetGlobalFilter<T>(BsonDocument document, bool prepend = false) =>
+    internal void SetGlobalFilter<T>(BsonDocument document, bool prepend = false) where T : IEntity =>
         _globalFilter.Set<T>(document, prepend);
 }

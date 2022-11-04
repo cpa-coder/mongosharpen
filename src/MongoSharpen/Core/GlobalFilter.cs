@@ -46,7 +46,7 @@ internal sealed class GlobalFilter
             AddFilter(entType, (jsonString, prepend));
     }
 
-    internal void Set<T>(FilterDefinition<T> filter, bool prepend = false)where T : IEntity
+    internal void Set<T>(FilterDefinition<T> filter, bool prepend = false) where T : IEntity
     {
         AddFilter(typeof(T), (filter, prepend));
     }

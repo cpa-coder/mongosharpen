@@ -1,5 +1,4 @@
 ﻿using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using MongoSharpen.Builders;
 using MongoSharpen.Internal;
 
