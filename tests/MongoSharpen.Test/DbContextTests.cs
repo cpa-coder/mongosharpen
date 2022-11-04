@@ -12,6 +12,7 @@ public class ContextCollection : ICollectionFixture<DbContextFixture>
 {
 }
 
+[Xunit.Collection("db-context")]
 public partial class DbContextTests
 {
     [Fact]

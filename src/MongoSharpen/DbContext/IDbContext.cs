@@ -9,7 +9,7 @@ public interface IDbContext
     internal IMongoClient Client { get; }
     internal IMongoDatabase Database { get; }
     internal IClientSessionHandle? Session { get; set; }
-
+    internal FilterDefinition<T> MergeWithGlobalFilter<T>(FilterDefinition<T> filter) where T : IEntity;
     Task<bool> ExistAsync();
     Transaction Transaction(ClientSessionOptions? options = null);
 

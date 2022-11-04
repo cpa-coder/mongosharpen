@@ -20,6 +20,8 @@ public class SoftDelete<T> where T : IEntity, ISoftDelete
     public async Task<DeleteResult> ExecuteManyAsync(string userId, bool forceDelete = false, CancellationToken token = default)
     {
         if (!forceDelete) _filters &= Builders<T>.Filter.Eq(t => t.SystemGenerated, false);
+        _filters = _context.MergeWithGlobalFilter(_filters);
+
         if (Cache<T>.Get().HasModifiedOn) _updates.Set(b => b.CurrentDate(Cache<T>.Get().ModifiedOnPropName));
 
         _updates.Set(t => t.Deleted, true);
@@ -40,6 +42,8 @@ public class SoftDelete<T> where T : IEntity, ISoftDelete
     public async Task<DeleteResult> ExecuteOneAsync(string userId, bool forceDelete = false, CancellationToken token = default)
     {
         if (!forceDelete) _filters &= Builders<T>.Filter.Eq(t => t.SystemGenerated, false);
+        _filters = _context.MergeWithGlobalFilter(_filters);
+
         if (Cache<T>.Get().HasModifiedOn) _updates.Set(b => b.CurrentDate(Cache<T>.Get().ModifiedOnPropName));
 
         _updates.Set(t => t.Deleted, true);
@@ -56,10 +60,12 @@ public class SoftDelete<T> where T : IEntity, ISoftDelete
 
         return new DeleteResult.Acknowledged(result.ModifiedCount);
     }
-    
+
     public async Task<T> ExecuteAndGetAsync(string userId, bool forceDelete = false, CancellationToken token = default)
     {
         if (!forceDelete) _filters &= Builders<T>.Filter.Eq(t => t.SystemGenerated, false);
+        _filters = _context.MergeWithGlobalFilter(_filters);
+
         if (Cache<T>.Get().HasModifiedOn) _updates.Set(b => b.CurrentDate(Cache<T>.Get().ModifiedOnPropName));
 
         _updates.Set(t => t.Deleted, true);
@@ -105,6 +111,8 @@ public class SoftDelete<T, TProjection> where T : IEntity, ISoftDelete
     public async Task<TProjection> ExecuteAndGetAsync(string userId, bool forceDelete = false, CancellationToken token = default)
     {
         if (!forceDelete) _filters &= Builders<T>.Filter.Eq(t => t.SystemGenerated, false);
+        _filters = _context.MergeWithGlobalFilter(_filters);
+
         if (_options.Projection == null) throw new InvalidOperationException("Projection not set");
 
         if (Cache<T>.Get().HasModifiedOn) _updates.Set(b => b.CurrentDate(Cache<T>.Get().ModifiedOnPropName));

@@ -1,9 +1,12 @@
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Driver;
 
 namespace MongoSharpen;
 
 internal sealed class DbFactoryInternal
 {
+    private readonly GlobalFilter _globalFilter;
     private readonly IConventionRegistryWrapper _registryWrapper;
 
     /// <summary>
@@ -17,6 +20,7 @@ internal sealed class DbFactoryInternal
         {
             { "camelCase", new ConventionPack { new CamelCaseElementNameConvention() } }
         };
+        _globalFilter = new GlobalFilter();
     }
 
     private bool _conventionsRegistered;
@@ -75,9 +79,10 @@ internal sealed class DbFactoryInternal
     ///     Get <see cref="DbContext" /> object with default database connection
     /// </summary>
     /// <param name="database">The database name</param>
+    /// <param name="ignoreGlobalFilter">Indicate whether to ignore global filter</param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException">Throws when no default connection has been setup</exception>
-    public IDbContext Get(string database)
+    public IDbContext Get(string database, bool ignoreGlobalFilter = false)
     {
         if (string.IsNullOrEmpty(DefaultConnection))
             throw new InvalidOperationException("No default connection has been setup");
@@ -88,7 +93,7 @@ internal sealed class DbFactoryInternal
         if (_contexts.ContainsKey(key))
             return _contexts[key];
 
-        var context = new DbContext(database, DefaultConnection);
+        var context = new DbContext(database, DefaultConnection, ignoreGlobalFilter, _globalFilter);
         _contexts.TryAdd(key, context);
 
         return context;
@@ -99,8 +104,9 @@ internal sealed class DbFactoryInternal
     /// </summary>
     /// <param name="database">The database name</param>
     /// <param name="connection">The connection other than default connection</param>
+    /// <param name="ignoreGlobalFilter">Indicate whether to ignore global filter</param>
     /// <returns></returns>
-    public IDbContext Get(string database, string connection)
+    public IDbContext Get(string database, string connection, bool ignoreGlobalFilter = false)
     {
         if (!_conventionsRegistered) RegisterConventions();
 
@@ -108,11 +114,20 @@ internal sealed class DbFactoryInternal
         if (_contexts.ContainsKey(key))
             return _contexts[key];
 
-        var context = new DbContext(database, connection);
+        var context = new DbContext(database, connection, ignoreGlobalFilter, _globalFilter);
         _contexts.TryAdd(key, context);
 
         return context;
     }
 
     public List<IDbContext> DbContexts => _contexts.Values.ToList();
+
+    internal void SetGlobalFilter<T>(string jsonString, bool prepend = false) =>
+        _globalFilter.Set<T>(jsonString, prepend);
+
+    internal void SetGlobalFilter<T>(FilterDefinition<T> filter, bool prepend = false) where T : IEntity =>
+        _globalFilter.Set(filter, prepend);
+
+    internal void SetGlobalFilter<T>(BsonDocument document, bool prepend = false) =>
+        _globalFilter.Set<T>(document, prepend);
 }

@@ -1,4 +1,6 @@
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Driver;
 
 namespace MongoSharpen;
 
@@ -49,6 +51,15 @@ public sealed class DbFactory
     public static IDbContext Get(string database, string connection) => Instance.Get(database, connection);
 
     public static List<IDbContext> DbContexts => Instance.DbContexts;
+
+    public static void SetGlobalFilterForInterface<T>(string jsonString, bool prepend = false) =>
+        Instance.SetGlobalFilter<T>(jsonString, prepend);
+
+    public static void SetGlobalFilterForInterface<T>(FilterDefinition<T> filter, bool prepend = false) where T : IEntity =>
+        Instance.SetGlobalFilter(filter, prepend);
+
+    public static void SetGlobalFilterForInterface<TInterface>(BsonDocument bsonDocument, bool prepend = false) =>
+        Instance.SetGlobalFilter<TInterface>(bsonDocument, prepend);
 }
 
 internal interface IConventionRegistryWrapper

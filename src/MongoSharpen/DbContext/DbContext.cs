@@ -10,6 +10,8 @@ internal sealed partial class DbContext : IDbContext
     private readonly IMongoClient _client;
     private readonly IMongoDatabase _database;
     private IClientSessionHandle? _session;
+    private readonly bool _ignoreGlobalFilters;
+    private readonly GlobalFilter _globalFilter;
 
     IMongoClient IDbContext.Client => _client;
 
@@ -21,8 +23,13 @@ internal sealed partial class DbContext : IDbContext
 
     IMongoDatabase IDbContext.Database => _database;
 
-    internal DbContext(string database, string connectionString)
+    internal DbContext(string database,
+        string connectionString,
+        bool ignoreGlobalFilters,
+        GlobalFilter globalFilter)
     {
+        _globalFilter = globalFilter;
+        _ignoreGlobalFilters = ignoreGlobalFilters;
         _client = ContextHelper.GetClient(connectionString);
         _database = _client.GetDatabase(database);
     }
@@ -60,4 +67,7 @@ internal sealed partial class DbContext : IDbContext
         _session = _client.StartSession(options);
         return Cache<T>.GetCollection(this).AsQueryable(_session);
     }
+
+    FilterDefinition<T> IDbContext.MergeWithGlobalFilter<T>(FilterDefinition<T> filter) =>
+        _ignoreGlobalFilters ? filter : _globalFilter.Merge(filter);
 }

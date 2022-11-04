@@ -49,6 +49,8 @@ public sealed class Find<T> where T : IEntity
         var collection = Cache<T>.GetCollection(_context);
         var session = _context.Session;
 
+        _filters = _context.MergeWithGlobalFilter(_filters);
+
         return session == null
             ? collection.FindAsync(_filters, _options, cancellation)
             : collection.FindAsync(session, _filters, _options, cancellation);
@@ -160,6 +162,8 @@ public sealed class Find<T, TProjection> where T : IEntity
 
         var collection = Cache<T>.GetCollection(_context);
         var session = _context.Session;
+
+        _filters = _context.MergeWithGlobalFilter(_filters);
 
         return session == null
             ? collection.FindAsync(_filters, _options, cancellation)

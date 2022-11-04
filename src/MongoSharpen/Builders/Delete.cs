@@ -20,6 +20,8 @@ public sealed class Delete<T> where T : IEntity
         if (!forceDelete && Cache<T>.Get().ForSystemGeneration)
             _filters &= Builders<T>.Filter.Eq(x => ((ISystemGenerated) x).SystemGenerated, false);
 
+        _filters = _context.MergeWithGlobalFilter(_filters);
+
         return _context.Session == null
             ? Cache<T>.GetCollection(_context).DeleteManyAsync(_filters, token)
             : Cache<T>.GetCollection(_context).DeleteManyAsync(_context.Session, _filters, cancellationToken: token);
@@ -30,6 +32,8 @@ public sealed class Delete<T> where T : IEntity
         if (!forceDelete && Cache<T>.Get().ForSystemGeneration)
             _filters &= Builders<T>.Filter.Eq(x => ((ISystemGenerated) x).SystemGenerated, false);
 
+        _filters = _context.MergeWithGlobalFilter(_filters);
+
         return _context.Session == null
             ? Cache<T>.GetCollection(_context).DeleteOneAsync(_filters, token)
             : Cache<T>.GetCollection(_context).DeleteOneAsync(_context.Session, _filters, cancellationToken: token);
@@ -39,6 +43,8 @@ public sealed class Delete<T> where T : IEntity
     {
         if (!forceDelete && Cache<T>.Get().ForSystemGeneration)
             _filters &= Builders<T>.Filter.Eq(x => ((ISystemGenerated) x).SystemGenerated, false);
+
+        _filters = _context.MergeWithGlobalFilter(_filters);
 
         T result;
 
@@ -86,6 +92,8 @@ public sealed class Delete<T, TProjection> where T : IEntity
 
         if (!forceDelete && Cache<T>.Get().ForSystemGeneration)
             _filters &= Builders<T>.Filter.Eq(x => ((ISystemGenerated) x).SystemGenerated, false);
+
+        _filters = _context.MergeWithGlobalFilter(_filters);
 
         TProjection result;
 

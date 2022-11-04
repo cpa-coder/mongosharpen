@@ -7,7 +7,7 @@ namespace MongoSharpen.Builders;
 public sealed class Update<T> where T : IEntity
 {
     private readonly IDbContext _context;
-    private readonly FilterDefinition<T> _filters;
+    private FilterDefinition<T> _filters;
     private readonly List<UpdateDefinition<T>> _updates = new();
     private readonly FindOneAndUpdateOptions<T, T> _options;
 
@@ -32,6 +32,8 @@ public sealed class Update<T> where T : IEntity
         var collection = Cache<T>.GetCollection(_context);
         var definition = Builders<T>.Update.Combine(_updates);
 
+        _filters = _context.MergeWithGlobalFilter(_filters);
+
         return session == null
             ? collection.UpdateManyAsync(_filters, definition, cancellationToken: token)
             : collection.UpdateManyAsync(session, _filters, definition, cancellationToken: token);
@@ -45,6 +47,8 @@ public sealed class Update<T> where T : IEntity
         var collection = Cache<T>.GetCollection(_context);
         var update = Builders<T>.Update.Combine(_updates);
 
+        _filters = _context.MergeWithGlobalFilter(_filters);
+
         return session == null
             ? collection.FindOneAndUpdateAsync(_filters, update, _options, token)
             : collection.FindOneAndUpdateAsync(session, _filters, update, _options, token);
@@ -54,7 +58,7 @@ public sealed class Update<T> where T : IEntity
 public sealed class Update<T, TProjection> where T : IEntity
 {
     private readonly IDbContext _context;
-    private readonly FilterDefinition<T> _filters;
+    private FilterDefinition<T> _filters;
     private readonly List<UpdateDefinition<T>> _updates = new();
     private readonly FindOneAndUpdateOptions<T, TProjection> _options;
 
@@ -93,6 +97,8 @@ public sealed class Update<T, TProjection> where T : IEntity
         var session = _context.Session;
         var collection = Cache<T>.GetCollection(_context);
         var update = Builders<T>.Update.Combine(_updates);
+
+        _filters = _context.MergeWithGlobalFilter(_filters);
 
         return session == null
             ? collection.FindOneAndUpdateAsync(_filters, update, _options, token)

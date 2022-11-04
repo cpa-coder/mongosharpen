@@ -8,7 +8,6 @@ using Xunit;
 
 namespace MongoSharpen.Test;
 
-[Xunit.Collection("db-context")]
 public partial class DbContextTests : IClassFixture<BookFixture>
 {
     private readonly BookFixture _bookFixture;
