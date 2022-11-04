@@ -62,12 +62,6 @@ internal sealed partial class DbContext : IDbContext
 
     public IMongoCollection<T> Collection<T>() where T : IEntity => Cache<T>.GetCollection(this);
 
-    public IMongoQueryable<T> Queryable<T>(ClientSessionOptions? options = null) where T : IEntity
-    {
-        _session = _client.StartSession(options);
-        return Cache<T>.GetCollection(this).AsQueryable(_session);
-    }
-
     FilterDefinition<T> IDbContext.MergeWithGlobalFilter<T>(FilterDefinition<T> filter) =>
         _ignoreGlobalFilters ? filter : _globalFilter.Merge(filter);
 }

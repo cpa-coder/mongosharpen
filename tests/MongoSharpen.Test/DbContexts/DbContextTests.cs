@@ -1,6 +1,4 @@
 ﻿using FluentAssertions;
-using MongoDB.Driver;
-using MongoSharpen.Internal;
 using MongoSharpen.Test.Entities;
 using MongoSharpen.Test.Fixtures;
 using Xunit;
@@ -59,7 +57,7 @@ public partial class DbContextTests
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => trans.CommitAsync());
     }
-    
+
     [Fact]
     public async Task drop_database__should_delete_database()
     {
@@ -69,30 +67,19 @@ public partial class DbContextTests
 
         var initiallyExist = await ctx.ExistAsync();
         initiallyExist.Should().BeTrue();
-    
+
         await ctx.DropDataBaseAsync();
 
         var finallyExist = await ctx.ExistAsync();
         finallyExist.Should().BeFalse();
     }
-    
-    [Fact]
-    public void queryable__should_return_queryable_of_type_with_the_same_db_context()
-    {
-        var ctx = DbFactory.Get("library");
-        var query = ctx.Queryable<Book>();
-
-        var internalQueryable = Cache<Book>.GetCollection(ctx).AsQueryable(ctx.Session);
-        query.Should().BeEquivalentTo(internalQueryable);
-    }
 
     [Fact]
-    public void collection__should_return_collection_of_type_with_the_same_db_context()
+    public void collection__should_return_collection_of_type_with_the_same_database()
     {
         var ctx = DbFactory.Get("library");
         var collection = ctx.Collection<Book>();
 
-        var internalCollection = Cache<Book>.GetCollection(ctx);
-        collection.Should().BeEquivalentTo(internalCollection);
+        collection.Database.Should().Be(ctx.Database);
     }
 }
