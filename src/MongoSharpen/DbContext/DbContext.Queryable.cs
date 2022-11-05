@@ -8,9 +8,7 @@ internal sealed partial class DbContext
 {
     public IMongoQueryable<T> Queryable<T>(AggregateOptions? options = null) where T : IEntity
     {
-        var globalFilter = _ignoreGlobalFilters
-            ? Builders<T>.Filter.Empty
-            : _globalFilter.Merge(Builders<T>.Filter.Empty);
+        var globalFilter = MergeFilterInternal(Builders<T>.Filter.Empty);
 
         _session = _client.StartSession();
         var queryable = Cache<T>.GetCollection(this).AsQueryable(_session, options);

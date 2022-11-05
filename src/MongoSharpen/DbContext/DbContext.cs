@@ -62,5 +62,8 @@ internal sealed partial class DbContext : IDbContext
     public IMongoCollection<T> Collection<T>() where T : IEntity => Cache<T>.GetCollection(this);
 
     FilterDefinition<T> IDbContext.MergeWithGlobalFilter<T>(FilterDefinition<T> filter) =>
+        MergeFilterInternal(filter);
+
+    private FilterDefinition<T> MergeFilterInternal<T>(FilterDefinition<T> filter) =>
         _ignoreGlobalFilters ? filter : _globalFilter.Merge(filter);
 }
