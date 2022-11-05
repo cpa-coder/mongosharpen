@@ -20,6 +20,10 @@
         <FileVersion>1.0.0</FileVersion>
         <PackageVersion>1.0.0</PackageVersion>
     </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DocumentationFile>bin\Release\MongoSharpen.xml</DocumentationFile>
+    </PropertyGroup>
     
     <ItemGroup>
         <PackageReference Include="MongoDB.Driver" Version="2.18.0" />
