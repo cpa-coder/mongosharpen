@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using MongoSharpen.Builders;
@@ -66,6 +67,58 @@ public interface IDbContext
     /// </summary>
     Find<T, TProjection> Find<T, TProjection>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
         where T : IEntity;
+
+    /// <summary>
+    ///     Returns an estimate of the number of documents in the collection ignoring global filter.
+    /// </summary>
+    /// <param name="token">The cancellation token</param>
+    /// <typeparam name="T">The entity that inherits from <see cref="IEntity" /></typeparam>
+    /// <returns>An estimate of the number of documents in the collection</returns>
+    Task<long> CountEstimatedAsync<T>(CancellationToken token = default) where T : IEntity;
+
+    /// <summary>
+    ///     Counts the number of documents in the collection ignoring global filter.
+    /// </summary>
+    /// <TIP>
+    ///     For faster count, you may want to consider using <see cref="CountEstimatedAsync{T}" />.
+    /// </TIP>
+    /// <param name="token">The cancellation token</param>
+    /// <typeparam name="T">The entity that inherits from <see cref="IEntity" /></typeparam>
+    /// <returns>The number of documents in the collection</returns>
+    Task<long> CountAsync<T>(CancellationToken token = default) where T : IEntity;
+
+    /// <summary>
+    ///     Counts the number of documents in the collection.
+    /// </summary>
+    /// <param name="expression">Filter expression</param>
+    /// <param name="options">Options for count operation</param>
+    /// <param name="token">The cancellation token</param>
+    /// <typeparam name="T">The entity that inherits from <see cref="IEntity" /></typeparam>
+    /// <returns>The number of documents in the collection</returns>
+    Task<long> CountAsync<T>(Expression<Func<T, bool>> expression, CountOptions? options = null,
+        CancellationToken token = default) where T : IEntity;
+
+    /// <summary>
+    ///     Counts the number of documents in the collection.
+    /// </summary>
+    /// <param name="filter">Filter definition</param>
+    /// <param name="options">Options for count operation</param>
+    /// <param name="token">The cancellation token</param>
+    /// <typeparam name="T">The entity that inherits from <see cref="IEntity" /></typeparam>
+    /// <returns>The number of documents in the collection</returns>
+    Task<long> CountAsync<T>(FilterDefinition<T> filter, CountOptions? options = null,
+        CancellationToken token = default) where T : IEntity;
+
+    /// <summary>
+    ///     Counts the number of documents in the collection.
+    /// </summary>
+    /// <param name="filter">Filter definition function</param>
+    /// <param name="options">Options for count operation</param>
+    /// <param name="token">The cancellation token</param>
+    /// <typeparam name="T">The entity that inherits from <see cref="IEntity" /></typeparam>
+    /// <returns>The number of documents in the collection</returns>
+    Task<long> CountAsync<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter,
+        CountOptions? options = null, CancellationToken token = default) where T : IEntity;
 
     /// <summary>
     ///     Implements MongoDB's update operation.
