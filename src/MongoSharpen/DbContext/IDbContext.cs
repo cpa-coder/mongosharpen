@@ -53,20 +53,27 @@ public interface IDbContext
     /// <summary>
     ///     Implements MongoDB's find operation.
     /// </summary>
-    Find<T> Find<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
-        where T : IEntity;
+    Find<T> Find<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression) where T : IEntity;
 
     /// <summary>
     ///     Implements MongoDB's find operation.
     /// </summary>
-    Find<T, TProjection> Find<T, TProjection>()
-        where T : IEntity;
+    public Find<T> Find<T>(FilterDefinition<T> definition) where T : IEntity;
 
     /// <summary>
     ///     Implements MongoDB's find operation.
     /// </summary>
-    Find<T, TProjection> Find<T, TProjection>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
-        where T : IEntity;
+    Find<T, TProjection> Find<T, TProjection>() where T : IEntity;
+
+    /// <summary>
+    ///     Implements MongoDB's find operation.
+    /// </summary>
+    Find<T, TProjection> Find<T, TProjection>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression) where T : IEntity;
+
+    /// <summary>
+    ///     Implements MongoDB's find operation.
+    /// </summary>
+    public Find<T, TProjection> Find<T, TProjection>(FilterDefinition<T> definition) where T : IEntity;
 
     /// <summary>
     ///     Returns an estimate of the number of documents in the collection ignoring global filter.
