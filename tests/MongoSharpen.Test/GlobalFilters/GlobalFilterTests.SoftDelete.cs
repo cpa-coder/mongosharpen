@@ -86,10 +86,10 @@ public sealed partial class GlobalFilterTests
         var context = factory.Get(Guid.NewGuid().ToString());
         await context.SaveAsync(book);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            context.Delete<Book>(x => x.Match(i => i.Title.Contains("-"))).GetAndExecuteAsync());
-
+        var result = await context.SoftDelete<Book>(x => x.Match(i => i.Title.Contains("-"))).ExecuteAndGetAsync(book.Id);
         await context.DropDataBaseAsync();
+
+        result.Should().BeNull();
     }
 
     [Fact]

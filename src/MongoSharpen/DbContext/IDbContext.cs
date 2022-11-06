@@ -186,7 +186,7 @@ public interface IDbContext
     /// </TIP>
     Delete<T, TProjection> Delete<T, TProjection>(FilterDefinition<T> definition)
         where T : IEntity;
-    
+
     /// <summary>
     ///     Implements MongoDB's delete operation.
     /// </summary>
@@ -203,9 +203,21 @@ public interface IDbContext
     /// <summary>
     ///     Implements soft delete operation.
     /// </summary>
+    SoftDelete<T> SoftDelete<T>(FilterDefinition<T> definition)
+        where T : IEntity, ISoftDelete;
+
+    /// <summary>
+    ///     Implements soft delete operation.
+    /// </summary>
     SoftDelete<T> SoftDelete<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
         where T : IEntity, ISoftDelete;
 
+    /// <summary>
+    ///     Implements soft delete operation.
+    /// </summary>
+    SoftDelete<T, TProjection> SoftDelete<T, TProjection>(FilterDefinition<T> definition)
+        where T : IEntity, ISoftDelete;
+    
     /// <summary>
     ///     Implements soft delete operation.
     /// </summary>
