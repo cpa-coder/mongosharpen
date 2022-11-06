@@ -51,20 +51,32 @@ public static class DbFactory
     }
 
     /// <summary>
+    ///     Get <see cref="DbContext" /> object with default database and connection
+    /// </summary>
+    /// <param name="ignoreGlobalFilter">Indicate whether to ignore global filter</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException">Throws when no default database has been setup</exception>
+    /// <exception cref="InvalidOperationException">Throws when no default connection has been setup</exception>
+    public static IDbContext Get(bool ignoreGlobalFilter = false) => Instance.Get(ignoreGlobalFilter);
+
+    /// <summary>
     ///     Get <see cref="IDbContext" /> instance with default database connection
     /// </summary>
     /// <param name="database">The database name</param>
+    /// <param name="ignoreGlobalFilter">Indicate whether to ignore global filter</param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException">Throws when no default connection has been setup</exception>
-    public static IDbContext Get(string database) => Instance.Get(database);
+    public static IDbContext Get(string database, bool ignoreGlobalFilter = false) => Instance.Get(database, ignoreGlobalFilter);
 
     /// <summary>
     ///     Get <see cref="IDbContext" /> instance with custom connection
     /// </summary>
     /// <param name="database">The database name</param>
     /// <param name="connection">The connection other than default connection</param>
+    /// <param name="ignoreGlobalFilter">Indicate whether to ignore global filter</param>
     /// <returns></returns>
-    public static IDbContext Get(string database, string connection) => Instance.Get(database, connection);
+    public static IDbContext Get(string database, string connection, bool ignoreGlobalFilter = false) =>
+        Instance.Get(database, connection, ignoreGlobalFilter);
 
     public static List<IDbContext> DbContexts => Instance.DbContexts;
 
