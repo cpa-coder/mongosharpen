@@ -59,7 +59,7 @@ public sealed partial class GlobalFilterTests
         var context = factory.Get(Guid.NewGuid().ToString());
         await context.SaveAsync(books);
 
-        var result = await context.Delete<Book>(x => x.Match(i => i.Title.Contains("-"))).ExecuteManyAsync();
+        var result = await context.Delete(MongoDB.Driver.Builders<Book>.Filter.Empty.Match(i => i.Title.Contains("-"))).ExecuteManyAsync();
         await context.DropDataBaseAsync();
 
         result.DeletedCount.Should().Be(books.Count(x => !x.Deleted));
@@ -85,7 +85,7 @@ public sealed partial class GlobalFilterTests
         await context.SaveAsync(book);
 
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            context.Delete<Book>(x => x.Match(i => i.Title.Contains("-"))).GetAndExecuteAsync());
+            context.Delete(MongoDB.Driver.Builders<Book>.Filter.Empty.Match(i => i.Title.Contains("-"))).GetAndExecuteAsync());
 
         await context.DropDataBaseAsync();
     }

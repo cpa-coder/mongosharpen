@@ -160,9 +160,33 @@ public interface IDbContext
     /// <TIP>
     ///     Consider logging the old records first or using the <see cref="SoftDelete{T}" /> operation.
     /// </TIP>
+    public Delete<T> Delete<T>(FilterDefinition<T> definition) where T : IEntity;
+
+    /// <summary>
+    ///     Implements MongoDB's delete operation.
+    /// </summary>
+    /// <warning>
+    ///     This is a destructive operation. Use with caution.
+    /// </warning>
+    /// <TIP>
+    ///     Consider logging the old records first or using the <see cref="SoftDelete{T}" /> operation.
+    /// </TIP>
     Delete<T> Delete<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
         where T : IEntity;
 
+    /// <summary>
+    ///     Implements MongoDB's delete operation.
+    /// </summary>
+    /// ///
+    /// <warning>
+    ///     This is a destructive operation. Use with caution.
+    /// </warning>
+    /// <TIP>
+    ///     Consider logging the old records first or using the <see cref="SoftDelete{T,TProjection}" /> operation.
+    /// </TIP>
+    Delete<T, TProjection> Delete<T, TProjection>(FilterDefinition<T> definition)
+        where T : IEntity;
+    
     /// <summary>
     ///     Implements MongoDB's delete operation.
     /// </summary>
