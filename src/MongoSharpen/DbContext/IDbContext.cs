@@ -262,6 +262,11 @@ public interface IDbContext
     /// <summary>
     ///     Implements document logging operation.
     /// </summary>
+    Task LogAsync<T>(FilterDefinition<T> definition, CancellationToken token = default) where T : IEntity;
+    
+    /// <summary>
+    ///     Implements document logging operation.
+    /// </summary>
     Task LogAsync<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression, CancellationToken token = default)
         where T : IEntity;
 

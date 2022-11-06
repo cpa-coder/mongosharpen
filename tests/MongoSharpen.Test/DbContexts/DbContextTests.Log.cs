@@ -103,6 +103,21 @@ public partial class DbContextTests
 
         count.Should().Be(_bookFixture.Books.Count);
     }
+    
+    [Fact]
+    public async Task log_by_filter_definition__should_save_log_in_db()
+    {
+        var randomDb = Guid.NewGuid().ToString();
+        var ctx = DbFactory.Get(randomDb);
+
+        await ctx.SaveAsync(_bookFixture.Books);
+
+        await ctx.LogAsync(Builders<Book>.Filter.Empty.Match(i => i.Title.Contains("-")));
+
+        var count = await GetBsonElementLogCount<Book>(ctx);
+
+        count.Should().Be(_bookFixture.Books.Count);
+    }
 
     [Fact]
     public async Task log_by_entities__should_save_log_in_db()
