@@ -78,8 +78,7 @@ public partial class DbContextTests
         await ctx.SaveAsync(author);
 
         var newName = $"{faker.Name.FirstName()} {faker.Name.LastName()}";
-        var result = await ctx.Update<Author>(x => x
-                .Match("{_id:" + $"ObjectId(\'{author.Id}\')" + "}"))
+        var result = await ctx.Update(Builders<Author>.Filter.MatchId(author.Id))
             .Modify(x => x.Set(i => i.Name, newName))
             .ExecuteAndGetAsync();
 
@@ -104,8 +103,7 @@ public partial class DbContextTests
         var isbn = faker.Vehicle.Model();
 
         var result = await ctx
-            .Update<Book, BookDto>(x => x
-                .Match("{_id:" + $"ObjectId(\'{book.Id}\')" + "}"))
+            .Update<Book, BookDto>(Builders<Book>.Filter.MatchId(book.Id))
             .Modify(x => x
                 .Set(i => i.Set(a => a.ISBN, isbn))
                 .Set(i => i.Set(a => a.Authors, new List<Author>()))
