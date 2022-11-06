@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver;
 using MongoSharpen.Test.Dtos;
 using MongoSharpen.Test.Entities;
 using Xunit;
@@ -60,7 +61,8 @@ public partial class DbContextTests
         await ctx.SaveAsync(books);
 
         var userId = ObjectId.GenerateNewId().ToString();
-        await ctx.SoftDelete<Book>(x => x.Match(i => i.Title.Contains("odd"))).ExecuteManyAsync(userId, forceDelete: true);
+        await ctx.SoftDelete(Builders<Book>.Filter.Empty.Match(i => i.Title.Contains("odd")))
+            .ExecuteManyAsync(userId, forceDelete: true);
 
         var found = await ctx.Find<Book>(x => x
                 .Match(i => i.Title.Contains("odd"))
@@ -205,7 +207,7 @@ public partial class DbContextTests
 
         var userId = ObjectId.GenerateNewId().ToString();
         var systemGeneratedItem = books.First(i => i.SystemGenerated);
-        var book = await ctx.SoftDelete<Book, BookDto>(x => x.MatchId(systemGeneratedItem.Id))
+        var book = await ctx.SoftDelete<Book, BookDto>(Builders<Book>.Filter.Empty.MatchId(systemGeneratedItem.Id))
             .Project(x => new BookDto())
             .ExecuteAndGetAsync(userId);
 
@@ -242,7 +244,7 @@ public partial class DbContextTests
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             ctx.SoftDelete<Book, BookDto>(x => x.MatchId(userId)).ExecuteAndGetAsync(userId));
     }
-    
+
     [Fact]
     public async Task soft_delete_with_projection__when_multiple_projection_setup__should_throw_exception()
     {
@@ -252,8 +254,8 @@ public partial class DbContextTests
         var userId = ObjectId.GenerateNewId().ToString();
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             ctx.SoftDelete<Book, BookDto>(x => x.MatchId(userId))
-                .Project(x=> new BookDto())
-                .Project(x=> new BookDto())
+                .Project(x => new BookDto())
+                .Project(x => new BookDto())
                 .ExecuteAndGetAsync(userId));
     }
 }

@@ -75,6 +75,38 @@ internal sealed class DbFactoryInternal
         }
     }
 
+    private string _defaultDatabase = string.Empty;
+
+    public string DefaultDatabase
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(_defaultDatabase))
+                throw new ArgumentException("Default database is not set");
+
+            return _defaultDatabase;
+        }
+        set
+        {
+            if (string.IsNullOrEmpty(value) || string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException("Invalid database value");
+
+            if (!string.IsNullOrEmpty(_defaultDatabase))
+                throw new InvalidOperationException("Default database can only be set once");
+
+            _defaultDatabase = value;
+        }
+    }
+
+    /// <summary>
+    ///     Get <see cref="DbContext" /> object with default database and connection
+    /// </summary>
+    /// <param name="ignoreGlobalFilter">Indicate whether to ignore global filter</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException">Throws when no default database has been setup</exception>
+    /// <exception cref="InvalidOperationException">Throws when no default connection has been setup</exception>
+    public IDbContext Get(bool ignoreGlobalFilter = false) => Get(DefaultDatabase, ignoreGlobalFilter);
+
     /// <summary>
     ///     Get <see cref="DbContext" /> object with default database connection
     /// </summary>

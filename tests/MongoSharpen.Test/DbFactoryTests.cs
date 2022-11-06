@@ -77,6 +77,51 @@ public class DbFactoryTests
     }
 
     [Fact]
+    public void on_set_default_database__when_empty_string__should_throw_argument_exception()
+    {
+        var factory = new DbFactoryInternal(_wrapperMock.Object);
+        Assert.Throws<ArgumentException>(() => factory.DefaultDatabase = string.Empty);
+    }
+
+    [Fact]
+    public void on_set_default_database__when_already_set__should_throw_invalid_operation_exception()
+    {
+        var factory = new DbFactoryInternal(_wrapperMock.Object) { DefaultDatabase = "default-db" };
+        Assert.Throws<InvalidOperationException>(() => factory.DefaultDatabase = "another db");
+    }
+
+    [Fact]
+    public void on_get_default_database__when_default_database_is_not_set__should_throw_invalid_operation_exception()
+    {
+        var factory = new DbFactoryInternal(_wrapperMock.Object);
+        Assert.Throws<ArgumentException>(() => factory.DefaultDatabase);
+    }
+
+    [Fact]
+    public void on_get__when_no_default_database_and_connection__should_throw_argument_exception()
+    {
+        var factory = new DbFactoryInternal(_wrapperMock.Object);
+        Assert.Throws<ArgumentException>(() => factory.Get());
+    }
+
+    [Fact]
+    public void on_get__when_no_default_database__should_throw_argument_exception()
+    {
+        var factory = new DbFactoryInternal(_wrapperMock.Object) { DefaultConnection = "mongodb://localhost:27107" };
+        Assert.Throws<ArgumentException>(() => factory.Get());
+    }
+
+    [Fact]
+    public void on_get__when_properly_configured__should_return_db_context()
+    {
+        var factory = new DbFactoryInternal(_wrapperMock.Object)
+            { DefaultConnection = "mongodb://localhost:27107", DefaultDatabase = "db" };
+
+        var context = factory.Get();
+        context.Database.DatabaseNamespace.DatabaseName.Should().Be("db");
+    }
+
+    [Fact]
     public void on_get__when_no_default_connection__should_throw_invalid_operation_exception()
     {
         var factory = new DbFactoryInternal(_wrapperMock.Object);

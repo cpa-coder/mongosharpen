@@ -53,20 +53,27 @@ public interface IDbContext
     /// <summary>
     ///     Implements MongoDB's find operation.
     /// </summary>
-    Find<T> Find<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
-        where T : IEntity;
+    Find<T> Find<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression) where T : IEntity;
 
     /// <summary>
     ///     Implements MongoDB's find operation.
     /// </summary>
-    Find<T, TProjection> Find<T, TProjection>()
-        where T : IEntity;
+    public Find<T> Find<T>(FilterDefinition<T> definition) where T : IEntity;
 
     /// <summary>
     ///     Implements MongoDB's find operation.
     /// </summary>
-    Find<T, TProjection> Find<T, TProjection>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
-        where T : IEntity;
+    Find<T, TProjection> Find<T, TProjection>() where T : IEntity;
+
+    /// <summary>
+    ///     Implements MongoDB's find operation.
+    /// </summary>
+    Find<T, TProjection> Find<T, TProjection>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression) where T : IEntity;
+
+    /// <summary>
+    ///     Implements MongoDB's find operation.
+    /// </summary>
+    public Find<T, TProjection> Find<T, TProjection>(FilterDefinition<T> definition) where T : IEntity;
 
     /// <summary>
     ///     Returns an estimate of the number of documents in the collection ignoring global filter.
@@ -129,9 +136,32 @@ public interface IDbContext
     /// <TIP>
     ///     Consider logging the old records first.
     /// </TIP>
+    Update<T> Update<T>(FilterDefinition<T> definition) where T : IEntity;
+    
+    /// <summary>
+    ///     Implements MongoDB's update operation.
+    /// </summary>
+    /// <warning>
+    ///     This is a destructive operation. Use with caution.
+    /// </warning>
+    /// <TIP>
+    ///     Consider logging the old records first.
+    /// </TIP>
     Update<T> Update<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
         where T : IEntity;
 
+    
+    /// <summary>
+    ///     Implements MongoDB's update operation.
+    /// </summary>
+    /// <warning>
+    ///     This is a destructive operation. Use with caution.
+    /// </warning>
+    /// <TIP>
+    ///     Consider logging the old records first.
+    /// </TIP>
+    Update<T, TProjection> Update<T, TProjection>(FilterDefinition<T> definition) where T : IEntity;
+    
     /// <summary>
     ///     Implements MongoDB's update operation.
     /// </summary>
@@ -151,7 +181,18 @@ public interface IDbContext
     ///     This is a destructive operation. Use with caution.
     /// </warning>
     /// <TIP>
-    ///     Consider logging the old records first or using the <see cref="SoftDelete{T}" /> operation.
+    ///     Consider logging the old records first or using the soft delete operation.
+    /// </TIP>
+    public Delete<T> Delete<T>(FilterDefinition<T> definition) where T : IEntity;
+
+    /// <summary>
+    ///     Implements MongoDB's delete operation.
+    /// </summary>
+    /// <warning>
+    ///     This is a destructive operation. Use with caution.
+    /// </warning>
+    /// <TIP>
+    ///     Consider logging the old records first or using the soft delete operation.
     /// </TIP>
     Delete<T> Delete<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
         where T : IEntity;
@@ -164,7 +205,20 @@ public interface IDbContext
     ///     This is a destructive operation. Use with caution.
     /// </warning>
     /// <TIP>
-    ///     Consider logging the old records first or using the <see cref="SoftDelete{T,TProjection}" /> operation.
+    ///     Consider logging the old records first or using the soft delete operation.
+    /// </TIP>
+    Delete<T, TProjection> Delete<T, TProjection>(FilterDefinition<T> definition)
+        where T : IEntity;
+
+    /// <summary>
+    ///     Implements MongoDB's delete operation.
+    /// </summary>
+    /// ///
+    /// <warning>
+    ///     This is a destructive operation. Use with caution.
+    /// </warning>
+    /// <TIP>
+    ///     Consider logging the old records first or using the soft delete operation.
     /// </TIP>
     Delete<T, TProjection> Delete<T, TProjection>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
         where T : IEntity;
@@ -172,9 +226,21 @@ public interface IDbContext
     /// <summary>
     ///     Implements soft delete operation.
     /// </summary>
+    SoftDelete<T> SoftDelete<T>(FilterDefinition<T> definition)
+        where T : IEntity, ISoftDelete;
+
+    /// <summary>
+    ///     Implements soft delete operation.
+    /// </summary>
     SoftDelete<T> SoftDelete<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
         where T : IEntity, ISoftDelete;
 
+    /// <summary>
+    ///     Implements soft delete operation.
+    /// </summary>
+    SoftDelete<T, TProjection> SoftDelete<T, TProjection>(FilterDefinition<T> definition)
+        where T : IEntity, ISoftDelete;
+    
     /// <summary>
     ///     Implements soft delete operation.
     /// </summary>
@@ -193,6 +259,11 @@ public interface IDbContext
     Task LogAsync<T>(T entity, CancellationToken token = default)
         where T : IEntity;
 
+    /// <summary>
+    ///     Implements document logging operation.
+    /// </summary>
+    Task LogAsync<T>(FilterDefinition<T> definition, CancellationToken token = default) where T : IEntity;
+    
     /// <summary>
     ///     Implements document logging operation.
     /// </summary>

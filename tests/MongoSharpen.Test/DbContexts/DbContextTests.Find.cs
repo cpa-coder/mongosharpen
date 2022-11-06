@@ -1,5 +1,6 @@
 using Bogus;
 using FluentAssertions;
+using MongoDB.Driver;
 using MongoSharpen.Builders;
 using MongoSharpen.Test.Dtos;
 using MongoSharpen.Test.Entities;
@@ -43,7 +44,7 @@ public partial class DbContextTests : IClassFixture<BookFixture>
         var ctx = DbFactory.Get("library");
         var reference = _bookFixture.Books.First();
 
-        var actual = await ctx.Find<Book>(x => x.Match(t => t.Id == reference.Id)).ExecuteAsync();
+        var actual = await ctx.Find(Builders<Book>.Filter.Eq(x => x.Id, reference.Id)).ExecuteAsync();
 
         actual.Count.Should().Be(1);
     }
@@ -134,7 +135,8 @@ public partial class DbContextTests : IClassFixture<BookFixture>
     }
 
     [Fact]
-    public async Task find__with_no_projection_and_on_execute_many_using_filter_expression__should_return_items_from_specified_filter()
+    public async Task
+        find__with_no_projection_and_on_execute_many_using_filter_expression__should_return_items_from_specified_filter()
     {
         var first = _bookFixture.Books.First();
 
@@ -144,6 +146,26 @@ public partial class DbContextTests : IClassFixture<BookFixture>
             .ManyAsync(x => x.Match(t => t.Title == first.Title));
 
         result.Count.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task find__on_execute_any__when_found__should_return_true()
+    {
+        var first = _bookFixture.Books.First();
+
+        var ctx = DbFactory.Get("library");
+        var result = await ctx.Find<Book>(x => x.MatchId(first.Id)).AnyAsync();
+
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task find__on_execute_any__when_not_found__should_return_false()
+    {
+        var ctx = DbFactory.Get("library");
+        var result = await ctx.Find<Book>(x => x.MatchId(Guid.NewGuid().ToString())).AnyAsync();
+
+        result.Should().BeFalse();
     }
 
     [Fact]
@@ -186,7 +208,7 @@ public partial class DbContextTests : IClassFixture<BookFixture>
         var ctx = DbFactory.Get("library");
         var reference = _bookFixture.Books.First();
 
-        var actual = await ctx.Find<Book, BookDto>(x => x.Match(t => t.Id == reference.Id))
+        var actual = await ctx.Find<Book, BookDto>(Builders<Book>.Filter.Eq(i => i.Id, reference.Id))
             .Project(x => new BookDto
             {
                 Id = x.Id,
@@ -373,6 +395,7 @@ public partial class DbContextTests : IClassFixture<BookFixture>
                 .Project(x => new BookDto { Id = x.Id })
                 .ExecuteSingleAsync());
     }
+
     [Fact]
     private async Task find__with_projection__when_no_projection_is_set__should_throw_exception()
     {

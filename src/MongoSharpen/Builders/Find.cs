@@ -101,6 +101,15 @@ public sealed class Find<T> where T : IEntity
         _filters = Builders<T>.Filter.Empty.Match(expression);
         return ExecuteAsync(cancellation);
     }
+
+    public async Task<bool> AnyAsync(CancellationToken cancellation = default)
+    {
+        Limit(1); //to prevent fetching more documents than needed
+
+        using var cursor = await ExecuteCursorAsync(cancellation).ConfigureAwait(false);
+        await cursor.MoveNextAsync(cancellation).ConfigureAwait(false);
+        return cursor.Current.Any();
+    }
 }
 
 public sealed class Find<T, TProjection> where T : IEntity

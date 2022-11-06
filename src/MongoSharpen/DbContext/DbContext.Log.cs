@@ -45,6 +45,13 @@ internal sealed partial class DbContext
         await LogInternalAsync<T>(doc, token);
     }
 
+    public async Task LogAsync<T>(FilterDefinition<T> definition, CancellationToken token = default) where T : IEntity
+    {
+        var entities = await Find(definition).ExecuteAsync(token);
+        var docs = entities.Select(ToBsonDocument);
+        await LogInternalAsync<T>(docs, token);
+    }
+    
     public async Task LogAsync<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression,
         CancellationToken token = default) where T : IEntity
     {

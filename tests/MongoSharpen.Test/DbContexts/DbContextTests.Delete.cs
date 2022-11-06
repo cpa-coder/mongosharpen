@@ -1,5 +1,6 @@
 ﻿using Bogus;
 using FluentAssertions;
+using MongoDB.Driver;
 using MongoSharpen.Test.Dtos;
 using MongoSharpen.Test.Entities;
 using Xunit;
@@ -335,7 +336,7 @@ public partial class DbContextTests
 
         var systemGeneratedItem = books.First(i => i.SystemGenerated);
 
-        var book = await ctx.Delete<Book, BookDto>(x => x.MatchId(systemGeneratedItem.Id))
+        var book = await ctx.Delete<Book, BookDto>(Builders<Book>.Filter.Empty.MatchId(systemGeneratedItem.Id))
             .Project(x => new BookDto
             {
                 Id = x.Id,
