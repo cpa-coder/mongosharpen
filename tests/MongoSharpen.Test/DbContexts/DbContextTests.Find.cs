@@ -149,6 +149,26 @@ public partial class DbContextTests : IClassFixture<BookFixture>
     }
 
     [Fact]
+    public async Task find__on_execute_any__when_found__should_return_true()
+    {
+        var first = _bookFixture.Books.First();
+
+        var ctx = DbFactory.Get("library");
+        var result = await ctx.Find<Book>(x => x.MatchId(first.Id)).AnyAsync();
+
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task find__on_execute_any__when_not_found__should_return_false()
+    {
+        var ctx = DbFactory.Get("library");
+        var result = await ctx.Find<Book>(x => x.MatchId(Guid.NewGuid().ToString())).AnyAsync();
+
+        result.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task find__with_projection__when_no_filters__should_get_all()
     {
         var ctx = DbFactory.Get("library");
