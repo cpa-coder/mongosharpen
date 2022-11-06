@@ -51,6 +51,15 @@ public static class DbFactory
     }
 
     /// <summary>
+    ///     Get or set the default <see cref="IDbContext" /> database name.
+    /// </summary>
+    public static string DefaultDatabase
+    {
+        get => Instance.DefaultDatabase;
+        set => Instance.DefaultDatabase = value;
+    }
+    
+    /// <summary>
     ///     Get <see cref="DbContext" /> object with default database and connection
     /// </summary>
     /// <param name="ignoreGlobalFilter">Indicate whether to ignore global filter</param>
