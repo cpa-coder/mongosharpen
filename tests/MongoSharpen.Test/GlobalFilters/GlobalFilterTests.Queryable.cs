@@ -34,6 +34,7 @@ public sealed partial class GlobalFilterTests
 
         var queryable = context.Queryable<Book>();
         var queryableList = await queryable.ToListAsync();
+        await context.DropDataBaseAsync();
 
         queryableList.Should().HaveCount(books.Count(i => !i.Deleted));
     }
@@ -64,6 +65,7 @@ public sealed partial class GlobalFilterTests
 
         var queryable = context.Queryable<Book>();
         var queryableList = await queryable.ToListAsync();
+        await context.DropDataBaseAsync();
 
         queryableList.Should().HaveCount(books.Count);
     }

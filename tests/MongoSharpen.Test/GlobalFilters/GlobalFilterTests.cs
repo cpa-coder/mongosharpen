@@ -26,8 +26,9 @@ public sealed partial class GlobalFilterTests
 
         var context = factory.Get(Guid.NewGuid().ToString());
         var filter = Builders<Author>.Filter.Eq(i => i.Deleted, false);
-        
-        var result =context.MergeWithGlobalFilter(filter);
+
+        var result = context.MergeWithGlobalFilter(filter);
+        context.DropDataBaseAsync();
 
         result.Should().BeEquivalentTo(filter);
     }
