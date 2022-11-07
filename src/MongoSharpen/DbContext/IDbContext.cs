@@ -128,6 +128,22 @@ public interface IDbContext
         CountOptions? options = null, CancellationToken token = default) where T : IEntity;
 
     /// <summary>
+    ///     Implements MongoDB's distinct operation.
+    /// </summary>
+    public Distinct<T, TProperty> Distinct<T, TProperty>() where T : IEntity;
+
+    /// <summary>
+    ///     Implements MongoDB's distinct operation.
+    /// </summary>
+    public Distinct<T, TProperty> Distinct<T, TProperty>(FilterDefinition<T> definition) where T : IEntity;
+
+    /// <summary>
+    ///     Implements MongoDB's distinct operation.
+    /// </summary>
+    public Distinct<T, TProperty> Distinct<T, TProperty>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
+        where T : IEntity;
+
+    /// <summary>
     ///     Implements MongoDB's update operation.
     /// </summary>
     /// <warning>
@@ -137,7 +153,7 @@ public interface IDbContext
     ///     Consider logging the old records first.
     /// </TIP>
     Update<T> Update<T>(FilterDefinition<T> definition) where T : IEntity;
-    
+
     /// <summary>
     ///     Implements MongoDB's update operation.
     /// </summary>
@@ -150,7 +166,6 @@ public interface IDbContext
     Update<T> Update<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
         where T : IEntity;
 
-    
     /// <summary>
     ///     Implements MongoDB's update operation.
     /// </summary>
@@ -161,7 +176,7 @@ public interface IDbContext
     ///     Consider logging the old records first.
     /// </TIP>
     Update<T, TProjection> Update<T, TProjection>(FilterDefinition<T> definition) where T : IEntity;
-    
+
     /// <summary>
     ///     Implements MongoDB's update operation.
     /// </summary>
@@ -240,7 +255,7 @@ public interface IDbContext
     /// </summary>
     SoftDelete<T, TProjection> SoftDelete<T, TProjection>(FilterDefinition<T> definition)
         where T : IEntity, ISoftDelete;
-    
+
     /// <summary>
     ///     Implements soft delete operation.
     /// </summary>
@@ -263,7 +278,7 @@ public interface IDbContext
     ///     Implements document logging operation.
     /// </summary>
     Task LogAsync<T>(FilterDefinition<T> definition, CancellationToken token = default) where T : IEntity;
-    
+
     /// <summary>
     ///     Implements document logging operation.
     /// </summary>
