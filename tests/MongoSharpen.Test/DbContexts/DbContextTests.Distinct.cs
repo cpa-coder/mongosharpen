@@ -71,7 +71,9 @@ public partial class DbContextTests
 
         await ctx.SaveAsync(books);
 
+        var undeleted = books.Where(t => !t.Deleted).DistinctBy(x => x.Title).Count();
+
         var items = await ctx.Distinct<Book, string>(x => x.Match(t => !t.Deleted)).Property("Title").ExecuteAsync();
-        items.Count.Should().Be(books.Where(t => !t.Deleted).DistinctBy(x => x.Title).Count());
+        items.Count.Should().Be(undeleted);
     }
 }
