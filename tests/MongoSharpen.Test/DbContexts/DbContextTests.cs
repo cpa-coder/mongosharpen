@@ -38,13 +38,15 @@ public partial class DbContextTests
     }
 
     [Fact]
-    public void start_transaction__when_called_more_than_once__should_throw_exception()
+    public void start_transaction__when_called_more_than_once__should_retain_existing_session()
     {
         var randomDb = Guid.NewGuid().ToString();
         var ctx = DbFactory.Get(randomDb);
         using var trans = ctx.Transaction();
+        var session = ctx.Session;
 
-        Assert.Throws<InvalidOperationException>(() => ctx.Transaction());
+        ctx.Transaction();
+        ctx.Session.Should().Be(session);
     }
 
     [Fact]
