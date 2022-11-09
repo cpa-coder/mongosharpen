@@ -23,7 +23,9 @@ public interface IDbContext
     /// </summary>
     /// <param name="options">A session options</param>
     /// <TIP>
-    ///     Make sure that replica set is enabled in the database server.
+    ///     1. Make sure that replica set is enabled in the database server. <br />
+    ///     2. As much as possible, do not run multiple transactions with the
+    ///        same database and document to prevent concurrency issues.
     /// </TIP>
     Transaction Transaction(ClientSessionOptions? options = null);
 

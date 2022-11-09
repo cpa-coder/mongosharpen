@@ -9,7 +9,7 @@ public sealed class Transaction : IDisposable
     public Transaction(IDbContext context, ClientSessionOptions? options = null)
     {
         _context = context;
-        _context.Session ??= _context.Client.StartSession(options);
+        _context.Session = _context.Client.StartSession(options);
 
         var inTransaction = _context.Session.IsInTransaction;
         if (!inTransaction) _context.Session.StartTransaction();
