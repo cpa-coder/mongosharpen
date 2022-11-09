@@ -9,7 +9,7 @@ using Xunit;
 
 namespace MongoSharpen.Test.DbContexts;
 
-public partial class DbContextTests : IClassFixture<BookFixture>
+public partial class DbContextTests 
 {
     private readonly BookFixture _bookFixture;
 

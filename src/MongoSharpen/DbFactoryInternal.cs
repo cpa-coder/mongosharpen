@@ -15,7 +15,7 @@ internal sealed class DbFactoryInternal
     internal DbFactoryInternal(IConventionRegistryWrapper registryWrapper)
     {
         _registryWrapper = registryWrapper;
-        _contexts = new Dictionary<string, IDbContext>();
+        DbContexts = new List<IDbContext>();
         _conventions = new Dictionary<string, ConventionPack>
         {
             { "camelCase", new ConventionPack { new CamelCaseElementNameConvention() } }
@@ -24,7 +24,6 @@ internal sealed class DbFactoryInternal
     }
 
     private bool _conventionsRegistered;
-    private readonly Dictionary<string, IDbContext> _contexts;
     private readonly Dictionary<string, ConventionPack> _conventions;
 
     public void AddConvention(string name, ConventionPack pack)
@@ -121,12 +120,8 @@ internal sealed class DbFactoryInternal
 
         if (!_conventionsRegistered) RegisterConventions();
 
-        var key = $"{database}@{DefaultConnection}";
-        if (_contexts.ContainsKey(key))
-            return _contexts[key];
-
         var context = new DbContext(database, DefaultConnection, ignoreGlobalFilter, _globalFilter);
-        _contexts.TryAdd(key, context);
+        DbContexts.Add(context);
 
         return context;
     }
@@ -142,17 +137,13 @@ internal sealed class DbFactoryInternal
     {
         if (!_conventionsRegistered) RegisterConventions();
 
-        var key = $"{database}@{connection}";
-        if (_contexts.ContainsKey(key))
-            return _contexts[key];
-
         var context = new DbContext(database, connection, ignoreGlobalFilter, _globalFilter);
-        _contexts.TryAdd(key, context);
+        DbContexts.Add(context);
 
         return context;
     }
 
-    public List<IDbContext> DbContexts => _contexts.Values.ToList();
+    public List<IDbContext> DbContexts { get; }
 
     internal void SetGlobalFilter<T>(string jsonString, bool prepend = false) =>
         _globalFilter.Set<T>(jsonString, prepend);

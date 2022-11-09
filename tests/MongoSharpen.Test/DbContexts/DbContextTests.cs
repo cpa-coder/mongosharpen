@@ -11,7 +11,7 @@ public class ContextCollection : ICollectionFixture<DbContextFixture>
 }
 
 [Xunit.Collection("db-context")]
-public partial class DbContextTests
+public partial class DbContextTests : IClassFixture<BookFixture>
 {
     [Fact]
     public async Task exist__should_return_valid_result()
@@ -38,7 +38,7 @@ public partial class DbContextTests
     }
 
     [Fact]
-    public void start_transaction__when_called_more_than_once__should_retain_existing_session()
+    public void start_transaction__when_called_more_than_once__should_always_load_new_session()
     {
         var randomDb = Guid.NewGuid().ToString();
         var ctx = DbFactory.Get(randomDb);
@@ -46,7 +46,7 @@ public partial class DbContextTests
         var session = ctx.Session;
 
         ctx.Transaction();
-        ctx.Session.Should().Be(session);
+        ctx.Session.Should().NotBe(session);
     }
 
     [Fact]

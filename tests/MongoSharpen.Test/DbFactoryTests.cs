@@ -1,5 +1,7 @@
 ﻿using FluentAssertions;
 using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Driver;
+using MongoSharpen.Test.Entities;
 using Moq;
 using Xunit;
 
@@ -150,14 +152,14 @@ public class DbFactoryTests
     }
 
     [Fact]
-    public void on_get__when_exist__should_get_existing_db_context()
+    public void on_get__should_always_get_new_db_context()
     {
         var factory = new DbFactoryInternal(_wrapperMock.Object) { DefaultConnection = "mongodb://localhost:27107" };
         var context = factory.Get("db");
 
-        var sameContext = factory.Get("db");
+        var newContext = factory.Get("db");
 
-        sameContext.Should().Be(context);
+        newContext.Should().NotBe(context);
     }
 
     [Fact]
@@ -183,13 +185,121 @@ public class DbFactoryTests
     }
 
     [Fact]
-    public void on_get_with_custom_connection__when_exist__should_get_existing_db_context()
+    public void on_get_with_custom_connection__should_always_get_new_db_context()
     {
         var factory = new DbFactoryInternal(_wrapperMock.Object);
 
         var context = factory.Get("db", "mongodb://localhost:27107");
+        var newContext = factory.Get("db", "mongodb://localhost:27107");
+        newContext.Should().NotBe(context);
+    }
 
-        var sameContext = factory.Get("db", "mongodb://localhost:27107");
-        sameContext.Should().Be(context);
+    [Fact]
+    public async Task on_get_with_multiple_transactions_with_no_conflicting_document_write()
+    {
+        const string dbName = "trans-db";
+        var factory = new DbFactoryInternal(_wrapperMock.Object) { DefaultConnection = "mongodb://localhost:30051" };
+
+        // to ensure new that the database is created
+        foreach (var context in factory.DbContexts)
+            await context.DropDataBaseAsync();
+
+        async Task Task1(DbFactoryInternal f)
+        {
+            var context = f.Get(dbName);
+            using var trans = context.Transaction();
+
+            var books = new List<Book>();
+            var count = await context.CountAsync<Book>();
+
+            for (var i = 0; i < 100; i++)
+            {
+                books.Add(new Book { Title = $"Book {i + count}" });
+            }
+            await context.SaveAsync(books);
+            await trans.CommitAsync();
+        }
+
+        async Task Task2(DbFactoryInternal f)
+        {
+            var context = f.Get(dbName);
+
+            using var trans = context.Transaction();
+
+            var authors = new List<Author>();
+            for (var i = 0; i < 1000; i++)
+            {
+                authors.Add(new Author { Name = $"Author {i}" });
+            }
+
+            await context.SaveAsync(authors);
+            await trans.CommitAsync();
+        }
+
+        // to test that this does not throw an exception
+        await Task.WhenAll(Task1(factory), Task2(factory));
+
+        foreach (var context in factory.DbContexts)
+            await context.DropDataBaseAsync();
+    }
+
+    [Fact]
+    public async Task on_get_with_multiple_transactions_with_conflicting_document_write()
+    {
+        const string dbName = "trans-db";
+        var factory = new DbFactoryInternal(_wrapperMock.Object) { DefaultConnection = "mongodb://localhost:30051" };
+
+        // to ensure new that the database is created
+        foreach (var context in factory.DbContexts)
+            await context.DropDataBaseAsync();
+
+        async Task Task1(DbFactoryInternal f)
+        {
+            var context = f.Get(dbName);
+            using var trans = context.Transaction();
+
+            var books = new List<Book>();
+            var count = await context.CountAsync<Book>();
+
+            for (var i = 0; i < 100; i++)
+            {
+                books.Add(new Book { Title = $"Book {i + count}" });
+            }
+            await context.SaveAsync(books);
+            await trans.CommitAsync();
+        }
+
+        async Task Task2(DbFactoryInternal f)
+        {
+            var context = f.Get(dbName);
+
+            using var trans = context.Transaction();
+
+            var books = new List<Book>();
+            for (var i = 0; i < 1000; i++)
+            {
+                books.Add(new Book { Title = $"Book {i}" });
+            }
+
+            //make sure not to write to the same document in production
+            var authors = new List<Author>();
+            for (var i = 0; i < 1000; i++)
+            {
+                authors.Add(new Author { Name = $"Author {i}" });
+            }
+
+            await context.SaveAsync(authors);
+
+            //this is the conflicting write
+            await context.SaveAsync(books);
+
+            await trans.CommitAsync();
+        }
+
+        await Assert.ThrowsAsync<MongoCommandException>(() => Task.WhenAll(Task1(factory), Task2(factory)));
+
+        // to ensure new that the database is created
+        foreach (var context in factory.DbContexts)
+            await context.DropDataBaseAsync();
     }
 }

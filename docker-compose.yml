@@ -1,0 +1,48 @@
+﻿services:
+  mongo-sharpen-db:
+    hostname: mongo-sharpen-db
+    image: mongo
+    expose:
+      - 27017
+    ports:
+      - 30060:27017
+    volumes:
+      - mongo-sharpen-data:/data/db
+    networks:
+      mongo_net:
+        ipv4_address: 10.0.10.3
+    restart: always
+    command: mongod --replSet mongo-sharpen-set --bind_ip 10.0.10.3
+  mongo-sharpen-init:
+    image: mongo
+    restart: 'no'
+    depends_on:
+      - mongo-sharpen-db
+    networks:
+      mongo_net:
+        ipv4_address: 10.0.10.4
+    command: >
+      mongosh --host mongo-sharpen-db:27017 --eval
+      '
+      db = (new Mongo("10.0.10.3:27017")).getDB("admin");
+      config = {
+      "_id" : "mongo-sharpen-set",
+      "members" : [
+        {
+          "_id" : 0,
+          "host" : "mongo-sharpen-db:27017"
+        }
+      ]
+      };
+      rs.initiate(config);
+      '
+volumes:
+  mongo-sharpen-data:
+
+networks:
+  mongo_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.10.0/24
+          gateway: 10.0.10.254
