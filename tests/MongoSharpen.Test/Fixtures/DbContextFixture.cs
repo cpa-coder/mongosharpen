@@ -6,8 +6,7 @@ public class DbContextFixture : IAsyncLifetime
 {
     public Task InitializeAsync()
     {
-        var conn = Environment.GetEnvironmentVariable("MONGOSHARPEN") ?? "mongodb://localhost:27107";
-        DbFactory.DefaultConnection = conn;
+        DbFactory.DefaultConnection = "mongodb://localhost:30060";
         return Task.CompletedTask;
     }
 

@@ -11,7 +11,7 @@ public class ContextCollection : ICollectionFixture<DbContextFixture>
 }
 
 [Xunit.Collection("db-context")]
-public partial class DbContextTests
+public partial class DbContextTests : IClassFixture<BookFixture>
 {
     [Fact]
     public async Task exist__should_return_valid_result()
