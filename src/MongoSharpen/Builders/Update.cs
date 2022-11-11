@@ -24,6 +24,12 @@ public sealed class Update<T> where T : IEntity
         return this;
     }
 
+    public Update<T> Modify(IEnumerable<UpdateDefinition<T>> updateDefinitions)
+    {
+        _updates.AddRange(updateDefinitions);
+        return this;
+    }
+
     public Task<UpdateResult> ExecuteAsync(CancellationToken token = default)
     {
         if (Cache<T>.Get().HasModifiedOn) _updates.Set(b => b.CurrentDate(Cache<T>.Get().ModifiedOnPropName));
