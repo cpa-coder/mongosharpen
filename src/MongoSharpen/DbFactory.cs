@@ -1,3 +1,4 @@
+using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
@@ -58,7 +59,7 @@ public static class DbFactory
         get => Instance.DefaultDatabase;
         set => Instance.DefaultDatabase = value;
     }
-    
+
     /// <summary>
     ///     Get <see cref="DbContext" /> object with default database and connection
     /// </summary>
@@ -93,10 +94,11 @@ public static class DbFactory
     ///     Set global filter for all <see cref="IDbContext" /> instances using JSON string.
     /// </summary>
     /// <param name="jsonString">Must be in a JSON format</param>
+    /// <param name="assembly">Specific assembly of types to apply filter with</param>
     /// <param name="prepend">Set if global filter is merge before or after any other filter in any database execution</param>
     /// <typeparam name="T">Must be an interface</typeparam>
-    public static void SetGlobalFilter<T>(string jsonString, bool prepend = false) =>
-        Instance.SetGlobalFilter<T>(jsonString, prepend);
+    public static void SetGlobalFilter<T>(string jsonString, Assembly assembly, bool prepend = false) =>
+        Instance.SetGlobalFilter<T>(jsonString, assembly, prepend);
 
     /// <summary>
     ///     Set global filter for all <see cref="IDbContext" /> instances using filter definition.

@@ -1,3 +1,4 @@
+using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
@@ -145,8 +146,8 @@ internal sealed class DbFactoryInternal
 
     public List<IDbContext> DbContexts { get; }
 
-    internal void SetGlobalFilter<T>(string jsonString, bool prepend = false) =>
-        _globalFilter.Set<T>(jsonString, prepend);
+    internal void SetGlobalFilter<T>(string jsonString, Assembly assembly, bool prepend = false) =>
+        _globalFilter.Set<T>(jsonString, assembly, prepend);
 
     internal void SetGlobalFilter<T>(FilterDefinition<T> filter, bool prepend = false) where T : IEntity =>
         _globalFilter.Set(filter, prepend);
