@@ -41,7 +41,7 @@ public sealed class Find<T> where T : IEntity
         return this;
     }
 
-    public Task<IAsyncCursor<T>> ExecuteCursorAsync(CancellationToken cancellation = default)
+    public Task<IAsyncCursor<T>> ExecuteCursorAsync(CancellationToken token = default)
     {
         if (_sorts.Count > 0)
             _options.Sort = Builders<T>.Sort.Combine(_sorts);
@@ -52,62 +52,86 @@ public sealed class Find<T> where T : IEntity
         _filters = _context.MergeWithGlobalFilter(_filters);
 
         return session == null
-            ? collection.FindAsync(_filters, _options, cancellation)
-            : collection.FindAsync(session, _filters, _options, cancellation);
+            ? collection.FindAsync(_filters, _options, token)
+            : collection.FindAsync(session, _filters, _options, token);
     }
 
-    public async Task<List<T>> ExecuteAsync(CancellationToken cancellation = default)
+    public async Task<List<T>> ExecuteAsync(CancellationToken token = default)
     {
         var list = new List<T>();
-        using var cursor = await ExecuteCursorAsync(cancellation).ConfigureAwait(false);
+        using var cursor = await ExecuteCursorAsync(token).ConfigureAwait(false);
 
-        while (await cursor.MoveNextAsync(cancellation).ConfigureAwait(false)) list.AddRange(cursor.Current);
+        while (await cursor.MoveNextAsync(token).ConfigureAwait(false)) list.AddRange(cursor.Current);
         return list;
     }
 
-    public async Task<T> ExecuteSingleAsync(CancellationToken cancellation = default)
+    public async Task<T> ExecuteSingleAsync(CancellationToken token = default)
     {
         Limit(2); //use take 2 to check if there is more than 1 document
 
-        using var cursor = await ExecuteCursorAsync(cancellation).ConfigureAwait(false);
-        await cursor.MoveNextAsync(cancellation).ConfigureAwait(false);
+        using var cursor = await ExecuteCursorAsync(token).ConfigureAwait(false);
+        await cursor.MoveNextAsync(token).ConfigureAwait(false);
         return cursor.Current.Single();
     }
 
-    public async Task<T> ExecuteFirstAsync(CancellationToken cancellation = default)
+    public async Task<T?> ExecuteSingleOrDefaultAsync(CancellationToken token = default)
+    {
+        Limit(2); //use take 2 to check if there is more than 1 document
+
+        using var cursor = await ExecuteCursorAsync(token).ConfigureAwait(false);
+        await cursor.MoveNextAsync(token).ConfigureAwait(false);
+        return cursor.Current.SingleOrDefault();
+    }
+
+    public async Task<T> ExecuteFirstAsync(CancellationToken token = default)
     {
         Limit(1); //to prevent fetching more documents than needed
 
-        using var cursor = await ExecuteCursorAsync(cancellation).ConfigureAwait(false);
-        await cursor.MoveNextAsync(cancellation).ConfigureAwait(false);
+        using var cursor = await ExecuteCursorAsync(token).ConfigureAwait(false);
+        await cursor.MoveNextAsync(token).ConfigureAwait(false);
         return cursor.Current.First();
     }
 
-    public Task<T> OneAsync(string id, CancellationToken cancellation = default)
-    {
-        _filters = Builders<T>.Filter.Empty.MatchId(id);
-        return ExecuteSingleAsync(cancellation);
-    }
-
-    public Task<List<T>> ManyAsync(Expression<Func<T, bool>> expression, CancellationToken cancellation = default)
-    {
-        _filters = Builders<T>.Filter.Empty.Match(expression);
-        return ExecuteAsync(cancellation);
-    }
-
-    public Task<List<T>> ManyAsync(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression,
-        CancellationToken cancellation = default)
-    {
-        _filters = Builders<T>.Filter.Empty.Match(expression);
-        return ExecuteAsync(cancellation);
-    }
-
-    public async Task<bool> AnyAsync(CancellationToken cancellation = default)
+    public async Task<T?> ExecuteFirstOrDefaultAsync(CancellationToken token = default)
     {
         Limit(1); //to prevent fetching more documents than needed
 
-        using var cursor = await ExecuteCursorAsync(cancellation).ConfigureAwait(false);
-        await cursor.MoveNextAsync(cancellation).ConfigureAwait(false);
+        using var cursor = await ExecuteCursorAsync(token).ConfigureAwait(false);
+        await cursor.MoveNextAsync(token).ConfigureAwait(false);
+        return cursor.Current.FirstOrDefault();
+    }
+
+    public Task<T> OneAsync(string id, CancellationToken token = default)
+    {
+        _filters = Builders<T>.Filter.Empty.MatchId(id);
+        return ExecuteSingleAsync(token);
+    }
+
+    public Task<T?> OneOrDefaultAsync(string id, CancellationToken token = default)
+    {
+        _filters = Builders<T>.Filter.Empty.MatchId(id);
+        return ExecuteSingleOrDefaultAsync(token);
+    }
+
+    public Task<List<T>> ManyAsync(Expression<Func<T, bool>> expression, CancellationToken token = default)
+    {
+        _filters = Builders<T>.Filter.Empty.Match(expression);
+        return ExecuteAsync(token);
+    }
+
+    public Task<List<T>> ManyAsync(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression,
+        CancellationToken token = default)
+    {
+        _filters = Builders<T>.Filter.Empty.Match(expression);
+        return ExecuteAsync(token);
+    }
+
+    public async Task<bool> AnyAsync(CancellationToken token = default)
+    {
+        Limit(1); //to prevent fetching more documents than needed
+
+        using var cursor = await ExecuteCursorAsync(token).ConfigureAwait(false);
+        await cursor.MoveNextAsync(token).ConfigureAwait(false);
         return cursor.Current.Any();
     }
 }
@@ -162,7 +186,7 @@ public sealed class Find<T, TProjection> where T : IEntity
         return this;
     }
 
-    public Task<IAsyncCursor<TProjection>> ExecuteCursorAsync(CancellationToken cancellation = default)
+    public Task<IAsyncCursor<TProjection>> ExecuteCursorAsync(CancellationToken token = default)
     {
         if (_options.Projection == null) throw new InvalidOperationException("Projection not set");
 
@@ -175,54 +199,78 @@ public sealed class Find<T, TProjection> where T : IEntity
         _filters = _context.MergeWithGlobalFilter(_filters);
 
         return session == null
-            ? collection.FindAsync(_filters, _options, cancellation)
-            : collection.FindAsync(session, _filters, _options, cancellation);
+            ? collection.FindAsync(_filters, _options, token)
+            : collection.FindAsync(session, _filters, _options, token);
     }
 
-    public async Task<List<TProjection>> ExecuteAsync(CancellationToken cancellation = default)
+    public async Task<List<TProjection>> ExecuteAsync(CancellationToken token = default)
     {
         var list = new List<TProjection>();
-        using var cursor = await ExecuteCursorAsync(cancellation).ConfigureAwait(false);
+        using var cursor = await ExecuteCursorAsync(token).ConfigureAwait(false);
 
-        while (await cursor.MoveNextAsync(cancellation).ConfigureAwait(false)) list.AddRange(cursor.Current);
+        while (await cursor.MoveNextAsync(token).ConfigureAwait(false)) list.AddRange(cursor.Current);
         return list;
     }
 
-    public async Task<TProjection> ExecuteSingleAsync(CancellationToken cancellation = default)
+    public async Task<TProjection> ExecuteSingleAsync(CancellationToken token = default)
     {
         Limit(2); //use take 2 to check if there is more than 1 document
 
-        using var cursor = await ExecuteCursorAsync(cancellation).ConfigureAwait(false);
-        await cursor.MoveNextAsync(cancellation).ConfigureAwait(false);
+        using var cursor = await ExecuteCursorAsync(token).ConfigureAwait(false);
+        await cursor.MoveNextAsync(token).ConfigureAwait(false);
+        return cursor.Current.Single();
+    }
+
+    public async Task<TProjection?> ExecuteSingleOrDefaultAsync(CancellationToken token = default)
+    {
+        Limit(2); //use take 2 to check if there is more than 1 document
+
+        using var cursor = await ExecuteCursorAsync(token).ConfigureAwait(false);
+        await cursor.MoveNextAsync(token).ConfigureAwait(false);
         return cursor.Current.SingleOrDefault();
     }
 
-    public async Task<TProjection> ExecuteFirstAsync(CancellationToken cancellation = default)
+    public async Task<TProjection> ExecuteFirstAsync(CancellationToken token = default)
     {
         Limit(1); //to prevent fetching more documents than needed
 
-        using var cursor = await ExecuteCursorAsync(cancellation).ConfigureAwait(false);
-        await cursor.MoveNextAsync(cancellation).ConfigureAwait(false);
+        using var cursor = await ExecuteCursorAsync(token).ConfigureAwait(false);
+        await cursor.MoveNextAsync(token).ConfigureAwait(false);
+        return cursor.Current.First();
+    }
+
+    public async Task<TProjection?> ExecuteFirstOrDefaultAsync(CancellationToken token = default)
+    {
+        Limit(1); //to prevent fetching more documents than needed
+
+        using var cursor = await ExecuteCursorAsync(token).ConfigureAwait(false);
+        await cursor.MoveNextAsync(token).ConfigureAwait(false);
         return cursor.Current.FirstOrDefault();
     }
 
-    public Task<TProjection> OneAsync(string id, CancellationToken cancellation = default)
+    public Task<TProjection> OneAsync(string id, CancellationToken token = default)
     {
         _filters = Builders<T>.Filter.Empty.MatchId(id);
-        return ExecuteSingleAsync(cancellation);
+        return ExecuteSingleAsync(token);
     }
 
-    public Task<List<TProjection>> ManyAsync(Expression<Func<T, bool>> expression, CancellationToken cancellation = default)
+    public Task<TProjection?> OneOrDefaultAsync(string id, CancellationToken token = default)
+    {
+        _filters = Builders<T>.Filter.Empty.MatchId(id);
+        return ExecuteSingleOrDefaultAsync(token);
+    }
+
+    public Task<List<TProjection>> ManyAsync(Expression<Func<T, bool>> expression, CancellationToken token = default)
     {
         _filters = Builders<T>.Filter.Empty.Match(expression);
-        return ExecuteAsync(cancellation);
+        return ExecuteAsync(token);
     }
 
     public Task<List<TProjection>> ManyAsync(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression,
-        CancellationToken cancellation = default)
+        CancellationToken token = default)
     {
         _filters = Builders<T>.Filter.Empty.Match(expression);
-        return ExecuteAsync(cancellation);
+        return ExecuteAsync(token);
     }
 }
 
