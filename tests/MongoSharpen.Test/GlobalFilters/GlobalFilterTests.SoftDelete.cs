@@ -1,4 +1,5 @@
-﻿using Bogus;
+﻿using System.Reflection;
+using Bogus;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoSharpen.Test.Dtos;
@@ -15,7 +16,7 @@ public sealed partial class GlobalFilterTests
         var conn = Environment.GetEnvironmentVariable("MONGOSHARPEN") ?? "mongodb://localhost:27107";
         var factory = new DbFactoryInternal(new ConventionRegistryWrapper()) { DefaultConnection = conn };
 
-        factory.SetGlobalFilter<ISoftDelete>("{ deleted : false }");
+        factory.SetGlobalFilter<ISoftDelete>("{ deleted : false }", Assembly.GetAssembly(typeof(Book))!);
 
         var faker = new Faker();
         var book = new Book
@@ -99,7 +100,7 @@ public sealed partial class GlobalFilterTests
         var conn = Environment.GetEnvironmentVariable("MONGOSHARPEN") ?? "mongodb://localhost:27107";
         var factory = new DbFactoryInternal(new ConventionRegistryWrapper()) { DefaultConnection = conn };
 
-        factory.SetGlobalFilter<ISoftDelete>("{ deleted : false }");
+        factory.SetGlobalFilter<ISoftDelete>("{ deleted : false }", Assembly.GetAssembly(typeof(Book))!);
 
         var faker = new Faker();
         var book = new Book
