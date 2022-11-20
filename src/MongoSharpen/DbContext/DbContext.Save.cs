@@ -41,14 +41,16 @@ internal sealed partial class DbContext
         if (string.IsNullOrEmpty(entity.Id))
         {
             entity.Id = entity.GenerateId();
+        }
 
-            if (Cache<T>.Get().HasCreatedOn)
+        if (Cache<T>.Get().HasCreatedOn)
+        {
+            var createdOn = (ICreatedOn) entity;
+            if (createdOn.CreatedOn == default)
             {
-                var createdOn = (ICreatedOn) entity;
                 createdOn.CreatedOn = DateTime.UtcNow;
+                return true;
             }
-
-            return true;
         }
 
         if (Cache<T>.Get().HasModifiedOn)

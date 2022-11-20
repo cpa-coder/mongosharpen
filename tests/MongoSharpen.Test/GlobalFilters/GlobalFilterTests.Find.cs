@@ -335,7 +335,7 @@ public sealed partial class GlobalFilterTests
         var context = factory.Get(Guid.NewGuid().ToString());
         await context.SaveAsync(book);
 
-        var result = await context.Find<Book, BookDto>().Project(x => new BookDto()).ExecuteFirstAsync();
+        var result = await context.Find<Book, BookDto>().Project(x => new BookDto()).ExecuteFirstOrDefaultAsync();
         result.Should().BeNull();
 
         await context.DropDataBaseAsync();
@@ -360,7 +360,7 @@ public sealed partial class GlobalFilterTests
         var context = factory.Get(Guid.NewGuid().ToString());
         await context.SaveAsync(book);
 
-        var result = await context.Find<Book, BookDto>().Project(x => new BookDto()).ExecuteSingleAsync();
+        var result = await context.Find<Book, BookDto>().Project(x => new BookDto()).ExecuteSingleOrDefaultAsync();
         result.Should().BeNull();
 
         await context.DropDataBaseAsync();
@@ -385,7 +385,7 @@ public sealed partial class GlobalFilterTests
         var context = factory.Get(Guid.NewGuid().ToString());
         await context.SaveAsync(book);
 
-        var result = await context.Find<Book, BookDto>().Project(x => new BookDto()).OneAsync(book.Id);
+        var result = await context.Find<Book, BookDto>().Project(x => new BookDto()).OneOrDefaultAsync(book.Id);
         result.Should().BeNull();
         await context.DropDataBaseAsync();
     }
