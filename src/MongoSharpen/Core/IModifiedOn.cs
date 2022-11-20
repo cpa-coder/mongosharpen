@@ -2,7 +2,7 @@ namespace MongoSharpen;
 
 public interface IModifiedOn
 {
-    ModifiedBy ModifiedBy { get; set; }
+    ModifiedBy? ModifiedBy { get; set; }
 
-    DateTime ModifiedOn { get; set; }
+    DateTime? ModifiedOn { get; set; }
 }
