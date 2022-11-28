@@ -51,7 +51,7 @@ internal sealed partial class DbContext : IDbContext
         return exist;
     }
 
-    public Transaction Transaction(ClientSessionOptions? options = null) => new(this, options);
+    public ITransaction Transaction(ClientSessionOptions? options = null) => new Transaction(this, options);
 
     public Task DropDataBaseAsync(CancellationToken token = default)
     {

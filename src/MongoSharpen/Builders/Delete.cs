@@ -4,7 +4,14 @@ using MongoSharpen.Internal;
 
 namespace MongoSharpen.Builders;
 
-public sealed class Delete<T> where T : IEntity
+public interface IDelete<T> where T : IEntity
+{
+    Task<DeleteResult> ExecuteManyAsync(bool forceDelete = false, CancellationToken token = default);
+    Task<DeleteResult> ExecuteOneAsync(bool forceDelete = false, CancellationToken token = default);
+    Task<T> GetAndExecuteAsync(bool forceDelete = false, CancellationToken token = default);
+}
+
+internal sealed class Delete<T> : IDelete<T> where T : IEntity
 {
     private readonly IDbContext _context;
     private FilterDefinition<T> _filters;
@@ -60,7 +67,13 @@ public sealed class Delete<T> where T : IEntity
     }
 }
 
-public sealed class Delete<T, TProjection> where T : IEntity
+public interface IDelete<T, TProjection> where T : IEntity
+{
+    IDelete<T, TProjection> Project(Expression<Func<T, TProjection>> expression);
+    Task<TProjection> GetAndExecuteAsync(bool forceDelete = false, CancellationToken token = default);
+}
+
+internal sealed class Delete<T, TProjection> : IDelete<T, TProjection> where T : IEntity
 {
     private readonly IDbContext _context;
     private FilterDefinition<T> _filters;
@@ -73,7 +86,7 @@ public sealed class Delete<T, TProjection> where T : IEntity
         _options = new FindOneAndDeleteOptions<T, TProjection>();
     }
 
-    public Delete<T, TProjection> Project(Expression<Func<T, TProjection>> expression)
+    public IDelete<T, TProjection> Project(Expression<Func<T, TProjection>> expression)
     {
         if (_options.Projection != null) throw new InvalidOperationException("Projection already set");
 

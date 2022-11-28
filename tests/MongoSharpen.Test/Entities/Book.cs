@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace MongoSharpen.Test.Entities;
 
 [Collection("books")]
-public class Book : Entity, ICreatedOn, IModifiedOn, ISoftDelete
+public class Book : Entity, ICreatedOn, IModifiedOn, IDeleteOn
 {
     public string Title { get; set; }
 

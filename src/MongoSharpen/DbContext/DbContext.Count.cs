@@ -30,7 +30,6 @@ internal sealed partial class DbContext
     {
         var filterLocal = MergeFilterInternal(filter);
         return GetCountInternalAsync(filterLocal, options, token);
-
     }
 
     public Task<long> CountAsync<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter,

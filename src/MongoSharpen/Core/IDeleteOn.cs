@@ -1,6 +1,6 @@
 namespace MongoSharpen;
 
-public interface ISoftDelete : ISystemGenerated
+public interface IDeleteOn : ISystemGenerated
 {
     bool Deleted { get; set; }
     DateTime? DeletedOn { get; set; }

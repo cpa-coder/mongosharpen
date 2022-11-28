@@ -1,7 +1,7 @@
 namespace MongoSharpen.Test.Entities;
 
 [Collection("authors")]
-public class Author : Entity, IModifiedOn, ISoftDelete
+public class Author : Entity, IModifiedOn, IDeleteOn
 {
     public string Name { get; set; }
     public ModifiedBy ModifiedBy { get; set; }

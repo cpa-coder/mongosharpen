@@ -4,7 +4,15 @@ using MongoSharpen.Internal;
 
 namespace MongoSharpen.Builders;
 
-public sealed class Update<T> where T : IEntity
+public interface IUpdate<T> where T : IEntity
+{
+    IUpdate<T> Modify(Action<List<UpdateDefinition<T>>> updateAction);
+    IUpdate<T> Modify(IEnumerable<UpdateDefinition<T>> updateDefinitions);
+    Task<UpdateResult> ExecuteAsync(CancellationToken token = default);
+    Task<T> ExecuteAndGetAsync(CancellationToken token = default);
+}
+
+internal sealed class Update<T> : IUpdate<T> where T : IEntity
 {
     private readonly IDbContext _context;
     private FilterDefinition<T> _filters;
@@ -18,13 +26,13 @@ public sealed class Update<T> where T : IEntity
         _options = new FindOneAndUpdateOptions<T, T> { ReturnDocument = ReturnDocument.After };
     }
 
-    public Update<T> Modify(Action<List<UpdateDefinition<T>>> updateAction)
+    public IUpdate<T> Modify(Action<List<UpdateDefinition<T>>> updateAction)
     {
         updateAction.Invoke(_updates);
         return this;
     }
 
-    public Update<T> Modify(IEnumerable<UpdateDefinition<T>> updateDefinitions)
+    public IUpdate<T> Modify(IEnumerable<UpdateDefinition<T>> updateDefinitions)
     {
         _updates.AddRange(updateDefinitions);
         return this;
@@ -61,7 +69,14 @@ public sealed class Update<T> where T : IEntity
     }
 }
 
-public sealed class Update<T, TProjection> where T : IEntity
+public interface IUpdate<T, TProjection> where T : IEntity
+{
+    IUpdate<T, TProjection> Modify(Action<List<UpdateDefinition<T>>> updateAction);
+    IUpdate<T, TProjection> Project(Expression<Func<T, TProjection>> expression);
+    Task<TProjection> ExecuteAndGetAsync(CancellationToken token = default);
+}
+
+internal sealed class Update<T, TProjection> : IUpdate<T, TProjection> where T : IEntity
 {
     private readonly IDbContext _context;
     private FilterDefinition<T> _filters;
@@ -75,13 +90,13 @@ public sealed class Update<T, TProjection> where T : IEntity
         _options = new FindOneAndUpdateOptions<T, TProjection> { ReturnDocument = ReturnDocument.After };
     }
 
-    public Update<T, TProjection> Modify(Action<List<UpdateDefinition<T>>> updateAction)
+    public IUpdate<T, TProjection> Modify(Action<List<UpdateDefinition<T>>> updateAction)
     {
         updateAction.Invoke(_updates);
         return this;
     }
 
-    public Update<T, TProjection> Project(Expression<Func<T, TProjection>> expression)
+    public IUpdate<T, TProjection> Project(Expression<Func<T, TProjection>> expression)
     {
         if (_options.Projection != null) throw new InvalidOperationException("Projection already set");
 
