@@ -61,7 +61,7 @@ public sealed partial class GlobalFilterTests
             books.Add(book);
         }
 
-        var context = factory.Get(Guid.NewGuid().ToString(), ignoreGlobalFilter: true);
+        var context = factory.Get(Guid.NewGuid().ToString(), true);
         await context.SaveAsync(books);
 
         var queryable = context.Queryable<Book>();

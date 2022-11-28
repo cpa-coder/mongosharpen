@@ -10,8 +10,8 @@ internal sealed partial class DbContext
     {
         var globalFilter = MergeFilterInternal(Builders<T>.Filter.Empty);
 
-        _session = _client.StartSession();
-        var queryable = Cache<T>.GetCollection(this).AsQueryable(_session, options);
+        ((IDbContext) this).Session = _client.StartSession();
+        var queryable = Cache<T>.GetCollection(this).AsQueryable(((IDbContext) this).Session, options);
 
         return globalFilter != Builders<T>.Filter.Empty
             ? queryable.Where(_ => globalFilter.Inject())

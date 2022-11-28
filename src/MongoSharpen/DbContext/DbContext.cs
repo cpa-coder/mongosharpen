@@ -8,17 +8,12 @@ internal sealed partial class DbContext : IDbContext
 {
     private readonly IMongoClient _client;
     private readonly IMongoDatabase _database;
-    private IClientSessionHandle? _session;
     private readonly bool _ignoreGlobalFilters;
     private readonly GlobalFilter _globalFilter;
 
     IMongoClient IDbContext.Client => _client;
 
-    IClientSessionHandle? IDbContext.Session
-    {
-        get => _session;
-        set => _session = value;
-    }
+    IClientSessionHandle? IDbContext.Session { get; set; }
 
     IMongoDatabase IDbContext.Database => _database;
 

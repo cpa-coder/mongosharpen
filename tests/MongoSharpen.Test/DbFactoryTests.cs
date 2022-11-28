@@ -212,10 +212,7 @@ public class DbFactoryTests
             var books = new List<Book>();
             var count = await context.CountAsync<Book>();
 
-            for (var i = 0; i < 100; i++)
-            {
-                books.Add(new Book { Title = $"Book {i + count}" });
-            }
+            for (var i = 0; i < 100; i++) books.Add(new Book { Title = $"Book {i + count}" });
             await context.SaveAsync(books);
             await trans.CommitAsync();
         }
@@ -227,10 +224,7 @@ public class DbFactoryTests
             using var trans = context.Transaction();
 
             var authors = new List<Author>();
-            for (var i = 0; i < 1000; i++)
-            {
-                authors.Add(new Author { Name = $"Author {i}" });
-            }
+            for (var i = 0; i < 1000; i++) authors.Add(new Author { Name = $"Author {i}" });
 
             await context.SaveAsync(authors);
             await trans.CommitAsync();
@@ -261,10 +255,7 @@ public class DbFactoryTests
             var books = new List<Book>();
             var count = await context.CountAsync<Book>();
 
-            for (var i = 0; i < 100; i++)
-            {
-                books.Add(new Book { Title = $"Book {i + count}" });
-            }
+            for (var i = 0; i < 100; i++) books.Add(new Book { Title = $"Book {i + count}" });
             await context.SaveAsync(books);
             await trans.CommitAsync();
         }
@@ -276,17 +267,11 @@ public class DbFactoryTests
             using var trans = context.Transaction();
 
             var books = new List<Book>();
-            for (var i = 0; i < 1000; i++)
-            {
-                books.Add(new Book { Title = $"Book {i}" });
-            }
+            for (var i = 0; i < 1000; i++) books.Add(new Book { Title = $"Book {i}" });
 
             //make sure not to write to the same document in production
             var authors = new List<Author>();
-            for (var i = 0; i < 1000; i++)
-            {
-                authors.Add(new Author { Name = $"Author {i}" });
-            }
+            for (var i = 0; i < 1000; i++) authors.Add(new Author { Name = $"Author {i}" });
 
             await context.SaveAsync(authors);
 

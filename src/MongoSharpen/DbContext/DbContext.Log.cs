@@ -18,18 +18,18 @@ internal sealed partial class DbContext
 
     private async Task LogInternalAsync<T>(BsonDocument doc, CancellationToken token) where T : IEntity
     {
-        if (_session == null)
+        if (((IDbContext) this).Session == null)
             await Cache<T>.GetCollection<BsonDocument>(this, Log).InsertOneAsync(doc, null, token);
         else
-            await Cache<T>.GetCollection<BsonDocument>(this, Log).InsertOneAsync(_session, doc, null, token);
+            await Cache<T>.GetCollection<BsonDocument>(this, Log).InsertOneAsync(((IDbContext) this).Session, doc, null, token);
     }
 
     private async Task LogInternalAsync<T>(IEnumerable<BsonDocument> docs, CancellationToken token) where T : IEntity
     {
-        if (_session == null)
+        if (((IDbContext) this).Session == null)
             await Cache<T>.GetCollection<BsonDocument>(this, Log).InsertManyAsync(docs, null, token);
         else
-            await Cache<T>.GetCollection<BsonDocument>(this, Log).InsertManyAsync(_session, docs, null, token);
+            await Cache<T>.GetCollection<BsonDocument>(this, Log).InsertManyAsync(((IDbContext) this).Session, docs, null, token);
     }
 
     public async Task LogAsync<T>(string id, CancellationToken token = default) where T : IEntity
@@ -51,7 +51,7 @@ internal sealed partial class DbContext
         var docs = entities.Select(ToBsonDocument);
         await LogInternalAsync<T>(docs, token);
     }
-    
+
     public async Task LogAsync<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression,
         CancellationToken token = default) where T : IEntity
     {

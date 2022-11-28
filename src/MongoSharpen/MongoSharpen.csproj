@@ -21,9 +21,9 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Release\MongoSharpen.xml</DocumentationFile>
+        <DocumentationFile>bin\Release\MongoSharpen.xml</DocumentationFile>
     </PropertyGroup>
-    
+
     <ItemGroup>
         <PackageReference Include="MongoDB.Driver" Version="2.18.0" />
     </ItemGroup>

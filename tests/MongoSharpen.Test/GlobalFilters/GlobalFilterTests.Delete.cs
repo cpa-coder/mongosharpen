@@ -2,6 +2,7 @@
 using Bogus;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver;
 using MongoSharpen.Test.Dtos;
 using MongoSharpen.Test.Entities;
 using Xunit;
@@ -41,7 +42,7 @@ public sealed partial class GlobalFilterTests
         var conn = Environment.GetEnvironmentVariable("MONGOSHARPEN") ?? "mongodb://localhost:27107";
         var factory = new DbFactoryInternal(new ConventionRegistryWrapper()) { DefaultConnection = conn };
 
-        factory.SetGlobalFilter(MongoDB.Driver.Builders<Book>.Filter.Eq(x => x.Deleted, false));
+        factory.SetGlobalFilter(Builders<Book>.Filter.Eq(x => x.Deleted, false));
 
         var faker = new Faker();
         var books = new List<Book>();
@@ -60,7 +61,7 @@ public sealed partial class GlobalFilterTests
         var context = factory.Get(Guid.NewGuid().ToString());
         await context.SaveAsync(books);
 
-        var result = await context.Delete(MongoDB.Driver.Builders<Book>.Filter.Empty.Match(i => i.Title.Contains("-"))).ExecuteManyAsync();
+        var result = await context.Delete(Builders<Book>.Filter.Empty.Match(i => i.Title.Contains("-"))).ExecuteManyAsync();
         await context.DropDataBaseAsync();
 
         result.DeletedCount.Should().Be(books.Count(x => !x.Deleted));
@@ -86,7 +87,7 @@ public sealed partial class GlobalFilterTests
         await context.SaveAsync(book);
 
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            context.Delete(MongoDB.Driver.Builders<Book>.Filter.Empty.Match(i => i.Title.Contains("-"))).GetAndExecuteAsync());
+            context.Delete(Builders<Book>.Filter.Empty.Match(i => i.Title.Contains("-"))).GetAndExecuteAsync());
 
         await context.DropDataBaseAsync();
     }

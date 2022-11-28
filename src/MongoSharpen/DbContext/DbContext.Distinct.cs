@@ -7,7 +7,7 @@ internal sealed partial class DbContext
 {
     public IDistinct<T, TProperty> Distinct<T, TProperty>()
         where T : IEntity => new Distinct<T, TProperty>(this);
-    
+
     public IDistinct<T, TProperty> Distinct<T, TProperty>(FilterDefinition<T> definition)
         where T : IEntity => new Distinct<T, TProperty>(this, _ => definition);
 

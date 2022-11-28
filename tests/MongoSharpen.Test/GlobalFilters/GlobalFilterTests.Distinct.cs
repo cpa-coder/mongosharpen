@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Bogus;
 using FluentAssertions;
+using MongoDB.Driver;
 using MongoSharpen.Test.Entities;
 using Xunit;
 
@@ -22,7 +23,7 @@ public sealed partial class GlobalFilterTests
             books.Add(new Book
             {
                 Title = $"Book{num}",
-                Deleted = num != 3,
+                Deleted = num != 3
             });
         }
 
@@ -51,7 +52,7 @@ public sealed partial class GlobalFilterTests
             books.Add(new Book
             {
                 Title = $"Book{num}",
-                Deleted = num != 3,
+                Deleted = num != 3
             });
         }
 
@@ -81,14 +82,14 @@ public sealed partial class GlobalFilterTests
             books.Add(new Book
             {
                 Title = $"Book{num}",
-                Deleted = num != 3,
+                Deleted = num != 3
             });
         }
 
         var context = factory.Get(Guid.NewGuid().ToString());
         await context.SaveAsync(books);
 
-        var result = await context.Distinct<Book, string>(MongoDB.Driver.Builders<Book>.Filter.Match(t => t.Deleted))
+        var result = await context.Distinct<Book, string>(Builders<Book>.Filter.Match(t => t.Deleted))
             .Property(nameof(Book.Title)).ExecuteAsync();
         await context.DropDataBaseAsync();
 

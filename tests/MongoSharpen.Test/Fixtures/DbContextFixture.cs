@@ -12,9 +12,6 @@ public class DbContextFixture : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        foreach (var ctx in DbFactory.DbContexts)
-        {
-            await ctx.DropDataBaseAsync();
-        }
+        foreach (var ctx in DbFactory.DbContexts) await ctx.DropDataBaseAsync();
     }
 }

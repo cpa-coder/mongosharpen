@@ -65,7 +65,7 @@ public partial class DbContextTests
             books.Add(new Book
             {
                 Title = $"Book{num}",
-                Deleted = num != 3,
+                Deleted = num != 3
             });
         }
 

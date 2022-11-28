@@ -27,10 +27,8 @@ internal sealed class GlobalFilter
 
         var types = assembly.GetTypes();
         foreach (var type in types)
-        {
             if (typeof(IEntity).IsAssignableFrom(type))
                 _entityTypes.Add(type);
-        }
 
         if (assembly.FullName != null) _assemblies.Add(assembly.FullName);
     }

@@ -8,13 +8,13 @@ internal sealed partial class DbContext
     public Task SaveAsync<T>(T entity, CancellationToken token = default) where T : IEntity
     {
         return PrepareAndForInsert(entity)
-            ? _session == null
+            ? ((IDbContext) this).Session == null
                 ? Cache<T>.GetCollection(this).InsertOneAsync(entity, null, token)
-                : Cache<T>.GetCollection(this).InsertOneAsync(_session, entity, null, token)
-            : _session == null
+                : Cache<T>.GetCollection(this).InsertOneAsync(((IDbContext) this).Session, entity, null, token)
+            : ((IDbContext) this).Session == null
                 ? Cache<T>.GetCollection(this).ReplaceOneAsync(x => x.Id == entity.Id, entity,
                     new ReplaceOptions { IsUpsert = true }, token)
-                : Cache<T>.GetCollection(this).ReplaceOneAsync(_session, x => x.Id == entity.Id, entity,
+                : Cache<T>.GetCollection(this).ReplaceOneAsync(((IDbContext) this).Session, x => x.Id == entity.Id, entity,
                     new ReplaceOptions { IsUpsert = true }, token);
     }
 
@@ -31,17 +31,14 @@ internal sealed partial class DbContext
 
         var options = new BulkWriteOptions { IsOrdered = false };
 
-        return _session == null
+        return ((IDbContext) this).Session == null
             ? Cache<T>.GetCollection(this).BulkWriteAsync(models, options, token)
-            : Cache<T>.GetCollection(this).BulkWriteAsync(_session, models, options, token);
+            : Cache<T>.GetCollection(this).BulkWriteAsync(((IDbContext) this).Session, models, options, token);
     }
 
     private static bool PrepareAndForInsert<T>(T entity) where T : IEntity
     {
-        if (string.IsNullOrEmpty(entity.Id))
-        {
-            entity.Id = entity.GenerateId();
-        }
+        if (string.IsNullOrEmpty(entity.Id)) entity.Id = entity.GenerateId();
 
         if (Cache<T>.Get().HasCreatedOn)
         {

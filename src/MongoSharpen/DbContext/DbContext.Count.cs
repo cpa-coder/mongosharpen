@@ -14,9 +14,9 @@ internal sealed partial class DbContext
 
     private Task<long> GetCountInternalAsync<T>(FilterDefinition<T> filter, CountOptions? options, CancellationToken token)
         where T : IEntity =>
-        _session == null
+        ((IDbContext) this).Session == null
             ? Cache<T>.GetCollection(this).CountDocumentsAsync(filter, options, token)
-            : Cache<T>.GetCollection(this).CountDocumentsAsync(_session, filter, options, token);
+            : Cache<T>.GetCollection(this).CountDocumentsAsync(((IDbContext) this).Session, filter, options, token);
 
     public Task<long> CountAsync<T>(Expression<Func<T, bool>> expression, CountOptions? options = null,
         CancellationToken token = default) where T : IEntity

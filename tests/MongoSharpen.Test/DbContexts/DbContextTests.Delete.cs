@@ -84,7 +84,7 @@ public partial class DbContextTests
         var books = GenerateBooksWithSystemGenerated();
         await ctx.SaveAsync(books);
 
-        await ctx.Delete<Book>(x => x.Match(i => i.Title.Contains("odd"))).ExecuteManyAsync(forceDelete: true);
+        await ctx.Delete<Book>(x => x.Match(i => i.Title.Contains("odd"))).ExecuteManyAsync(true);
 
         var found = await ctx.Find<Book>(x => x.Match(i => i.Title.Contains("odd"))).ExecuteAsync();
         found.Should().BeEmpty();
@@ -131,7 +131,7 @@ public partial class DbContextTests
         await ctx.SaveAsync(books);
 
         var systemGeneratedItem = books.First(i => i.SystemGenerated);
-        await ctx.Delete<Book>(x => x.Match(i => i.Id == systemGeneratedItem.Id)).ExecuteOneAsync(forceDelete: true);
+        await ctx.Delete<Book>(x => x.Match(i => i.Id == systemGeneratedItem.Id)).ExecuteOneAsync(true);
 
         //throw exception when no items found
         await Assert.ThrowsAsync<InvalidOperationException>(() => ctx.Find<Book>(x =>
@@ -181,7 +181,7 @@ public partial class DbContextTests
         await ctx.SaveAsync(books);
 
         var systemGeneratedItem = books.First(i => i.SystemGenerated);
-        var book = await ctx.Delete<Book>(x => x.Match(i => i.Id == systemGeneratedItem.Id)).GetAndExecuteAsync(forceDelete: true);
+        var book = await ctx.Delete<Book>(x => x.Match(i => i.Id == systemGeneratedItem.Id)).GetAndExecuteAsync(true);
 
         book.Id.Should().Be(systemGeneratedItem.Id);
 
@@ -202,7 +202,7 @@ public partial class DbContextTests
         await ctx.SaveAsync(books);
 
         var systemGeneratedItem = books.First(i => i.SystemGenerated);
-        var book = await ctx.Delete<Book>(x => x.Match(i => i.Id == systemGeneratedItem.Id)).GetAndExecuteAsync(forceDelete: true);
+        var book = await ctx.Delete<Book>(x => x.Match(i => i.Id == systemGeneratedItem.Id)).GetAndExecuteAsync(true);
 
         await trans.CommitAsync();
 
@@ -316,7 +316,7 @@ public partial class DbContextTests
                 Title = x.Title,
                 ISBN = x.ISBN
             })
-            .GetAndExecuteAsync(forceDelete: true);
+            .GetAndExecuteAsync(true);
 
         book.Id.Should().Be(systemGeneratedItem.Id);
         book.Title.Should().Be(systemGeneratedItem.Title);
@@ -324,7 +324,8 @@ public partial class DbContextTests
     }
 
     [Fact]
-    public async Task delete__with_projection_using_transaction__on_get_and_execute_and_get_by_force__when_system_generated__should_get_and_delete_item()
+    public async Task
+        delete__with_projection_using_transaction__on_get_and_execute_and_get_by_force__when_system_generated__should_get_and_delete_item()
     {
         var random = Guid.NewGuid().ToString();
         var ctx = DbFactory.Get(random);
@@ -343,7 +344,7 @@ public partial class DbContextTests
                 Title = x.Title,
                 ISBN = x.ISBN
             })
-            .GetAndExecuteAsync(forceDelete: true);
+            .GetAndExecuteAsync(true);
 
         await trans.CommitAsync();
 

@@ -14,7 +14,8 @@ public sealed partial class GlobalFilterTests
         var conn = Environment.GetEnvironmentVariable("MONGOSHARPEN") ?? "mongodb://localhost:27107";
         var factory = new DbFactoryInternal(new ConventionRegistryWrapper()) { DefaultConnection = conn };
 
-        Assert.Throws<ArgumentException>(() => factory.SetGlobalFilter<Entity>("{ deleted : false }", Assembly.GetAssembly(typeof(Book))!));
+        Assert.Throws<ArgumentException>(() =>
+            factory.SetGlobalFilter<Entity>("{ deleted : false }", Assembly.GetAssembly(typeof(Book))!));
     }
 
     [Fact]

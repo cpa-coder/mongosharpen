@@ -21,12 +21,12 @@ internal sealed class Distinct<T, TProperty> : IDistinct<T, TProperty> where T :
         _filters = filter.Invoke(Builders<T>.Filter);
     }
 
-    
     public Distinct(IDbContext context)
     {
         _context = context;
         _filters = FilterDefinition<T>.Empty;
     }
+
     public IDistinct<T, TProperty> Property(string property)
     {
         if (_field != null) throw new InvalidOperationException("Property already set");
