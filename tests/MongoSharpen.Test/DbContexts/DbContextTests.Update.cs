@@ -120,7 +120,7 @@ public partial class DbContextTests
         result.ISBN.Should().Be(isbn);
         result.Authors.Count().Should().Be(0);
     }
-    
+
     [Fact]
     public async Task update_with_projection__when_no_projection_setup__should_throw_exception()
     {
@@ -137,7 +137,7 @@ public partial class DbContextTests
         var title = $"{faker.Commerce.Product()}-{faker.Commerce.Department()}";
         var isbn = faker.Vehicle.Model();
 
-        await Assert.ThrowsAsync<InvalidOperationException>(()=> ctx
+        await Assert.ThrowsAsync<InvalidOperationException>(() => ctx
             .Update<Book, BookDto>(x => x
                 .Match("{_id:" + $"ObjectId(\'{book.Id}\')" + "}"))
             .Modify(x => x
@@ -146,7 +146,7 @@ public partial class DbContextTests
                 .Set(Builders<Book>.Update.Set(a => a.Title, title)))
             .ExecuteAndGetAsync());
     }
-    
+
     [Fact]
     public async Task update_with_projection__when_multiple_projection_setup__should_throw_exception()
     {
@@ -163,7 +163,7 @@ public partial class DbContextTests
         var title = $"{faker.Commerce.Product()}-{faker.Commerce.Department()}";
         var isbn = faker.Vehicle.Model();
 
-        await Assert.ThrowsAsync<InvalidOperationException>(()=> ctx
+        await Assert.ThrowsAsync<InvalidOperationException>(() => ctx
             .Update<Book, BookDto>(x => x
                 .Match("{_id:" + $"ObjectId(\'{book.Id}\')" + "}"))
             .Modify(x => x

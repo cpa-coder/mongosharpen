@@ -62,7 +62,7 @@ public partial class DbContextTests
 
         var userId = ObjectId.GenerateNewId().ToString();
         await ctx.SoftDelete(Builders<Book>.Filter.Empty.Match(i => i.Title.Contains("odd")))
-            .ExecuteManyAsync(userId, forceDelete: true);
+            .ExecuteManyAsync(userId, true);
 
         var found = await ctx.Find<Book>(x => x
                 .Match(i => i.Title.Contains("odd"))
@@ -116,7 +116,7 @@ public partial class DbContextTests
 
         var userId = ObjectId.GenerateNewId().ToString();
         var systemGeneratedItem = books.First(i => i.SystemGenerated);
-        await ctx.SoftDelete<Book>(x => x.Match(i => i.Id == systemGeneratedItem.Id)).ExecuteOneAsync(userId, forceDelete: true);
+        await ctx.SoftDelete<Book>(x => x.Match(i => i.Id == systemGeneratedItem.Id)).ExecuteOneAsync(userId, true);
 
         var found = await ctx.Find<Book>().OneAsync(systemGeneratedItem.Id);
         found.Deleted.Should().BeTrue();
@@ -167,7 +167,7 @@ public partial class DbContextTests
 
         var userId = ObjectId.GenerateNewId().ToString();
         var systemGeneratedItem = books.First(i => i.SystemGenerated);
-        var book = await ctx.SoftDelete<Book>(x => x.MatchId(systemGeneratedItem.Id)).ExecuteAndGetAsync(userId, forceDelete: true);
+        var book = await ctx.SoftDelete<Book>(x => x.MatchId(systemGeneratedItem.Id)).ExecuteAndGetAsync(userId, true);
 
         book.Should().NotBeNull();
         book.Deleted.Should().BeTrue();
@@ -228,7 +228,7 @@ public partial class DbContextTests
         var book = await ctx.SoftDelete<Book, BookDto>(x => x
                 .MatchId(systemGeneratedItem.Id))
             .Project(x => new BookDto { Id = x.Id })
-            .ExecuteAndGetAsync(userId, forceDelete: true);
+            .ExecuteAndGetAsync(userId, true);
 
         book.Should().NotBeNull();
         book.Id.Should().Be(systemGeneratedItem.Id);

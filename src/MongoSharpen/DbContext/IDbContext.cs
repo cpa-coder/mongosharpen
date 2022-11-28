@@ -26,7 +26,7 @@ public interface IDbContext
     ///     1. Make sure that replica set is enabled in the database server. <br />
     ///     2. As much as possible, run only one transaction per request to avoid concurrency issues.
     /// </TIP>
-    Transaction Transaction(ClientSessionOptions? options = null);
+    ITransaction Transaction(ClientSessionOptions? options = null);
 
     /// <summary>
     ///     Saves the entity to the database.
@@ -49,32 +49,32 @@ public interface IDbContext
     /// <summary>
     ///     Implements MongoDB's find operation.
     /// </summary>
-    Find<T> Find<T>() where T : IEntity;
+    IFind<T> Find<T>() where T : IEntity;
 
     /// <summary>
     ///     Implements MongoDB's find operation.
     /// </summary>
-    Find<T> Find<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression) where T : IEntity;
+    IFind<T> Find<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression) where T : IEntity;
 
     /// <summary>
     ///     Implements MongoDB's find operation.
     /// </summary>
-    public Find<T> Find<T>(FilterDefinition<T> definition) where T : IEntity;
+    public IFind<T> Find<T>(FilterDefinition<T> definition) where T : IEntity;
 
     /// <summary>
     ///     Implements MongoDB's find operation.
     /// </summary>
-    Find<T, TProjection> Find<T, TProjection>() where T : IEntity;
+    IFind<T, TProjection> Find<T, TProjection>() where T : IEntity;
 
     /// <summary>
     ///     Implements MongoDB's find operation.
     /// </summary>
-    Find<T, TProjection> Find<T, TProjection>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression) where T : IEntity;
+    IFind<T, TProjection> Find<T, TProjection>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression) where T : IEntity;
 
     /// <summary>
     ///     Implements MongoDB's find operation.
     /// </summary>
-    public Find<T, TProjection> Find<T, TProjection>(FilterDefinition<T> definition) where T : IEntity;
+    public IFind<T, TProjection> Find<T, TProjection>(FilterDefinition<T> definition) where T : IEntity;
 
     /// <summary>
     ///     Returns an estimate of the number of documents in the collection ignoring global filter.
@@ -131,17 +131,17 @@ public interface IDbContext
     /// <summary>
     ///     Implements MongoDB's distinct operation.
     /// </summary>
-    public Distinct<T, TProperty> Distinct<T, TProperty>() where T : IEntity;
+    public IDistinct<T, TProperty> Distinct<T, TProperty>() where T : IEntity;
 
     /// <summary>
     ///     Implements MongoDB's distinct operation.
     /// </summary>
-    public Distinct<T, TProperty> Distinct<T, TProperty>(FilterDefinition<T> definition) where T : IEntity;
+    public IDistinct<T, TProperty> Distinct<T, TProperty>(FilterDefinition<T> definition) where T : IEntity;
 
     /// <summary>
     ///     Implements MongoDB's distinct operation.
     /// </summary>
-    public Distinct<T, TProperty> Distinct<T, TProperty>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
+    public IDistinct<T, TProperty> Distinct<T, TProperty>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
         where T : IEntity;
 
     /// <summary>
@@ -153,7 +153,7 @@ public interface IDbContext
     /// <TIP>
     ///     Consider logging the old records first.
     /// </TIP>
-    Update<T> Update<T>(FilterDefinition<T> definition) where T : IEntity;
+    IUpdate<T> Update<T>(FilterDefinition<T> definition) where T : IEntity;
 
     /// <summary>
     ///     Implements MongoDB's update operation.
@@ -164,7 +164,7 @@ public interface IDbContext
     /// <TIP>
     ///     Consider logging the old records first.
     /// </TIP>
-    Update<T> Update<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
+    IUpdate<T> Update<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
         where T : IEntity;
 
     /// <summary>
@@ -176,7 +176,7 @@ public interface IDbContext
     /// <TIP>
     ///     Consider logging the old records first.
     /// </TIP>
-    Update<T, TProjection> Update<T, TProjection>(FilterDefinition<T> definition) where T : IEntity;
+    IUpdate<T, TProjection> Update<T, TProjection>(FilterDefinition<T> definition) where T : IEntity;
 
     /// <summary>
     ///     Implements MongoDB's update operation.
@@ -187,7 +187,7 @@ public interface IDbContext
     /// <TIP>
     ///     Consider logging the old records first.
     /// </TIP>
-    Update<T, TProjection> Update<T, TProjection>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
+    IUpdate<T, TProjection> Update<T, TProjection>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
         where T : IEntity;
 
     /// <summary>
@@ -199,7 +199,7 @@ public interface IDbContext
     /// <TIP>
     ///     Consider logging the old records first or using the soft delete operation.
     /// </TIP>
-    public Delete<T> Delete<T>(FilterDefinition<T> definition) where T : IEntity;
+    public IDelete<T> Delete<T>(FilterDefinition<T> definition) where T : IEntity;
 
     /// <summary>
     ///     Implements MongoDB's delete operation.
@@ -210,7 +210,7 @@ public interface IDbContext
     /// <TIP>
     ///     Consider logging the old records first or using the soft delete operation.
     /// </TIP>
-    Delete<T> Delete<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
+    IDelete<T> Delete<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
         where T : IEntity;
 
     /// <summary>
@@ -223,7 +223,7 @@ public interface IDbContext
     /// <TIP>
     ///     Consider logging the old records first or using the soft delete operation.
     /// </TIP>
-    Delete<T, TProjection> Delete<T, TProjection>(FilterDefinition<T> definition)
+    IDelete<T, TProjection> Delete<T, TProjection>(FilterDefinition<T> definition)
         where T : IEntity;
 
     /// <summary>
@@ -236,32 +236,32 @@ public interface IDbContext
     /// <TIP>
     ///     Consider logging the old records first or using the soft delete operation.
     /// </TIP>
-    Delete<T, TProjection> Delete<T, TProjection>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
+    IDelete<T, TProjection> Delete<T, TProjection>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
         where T : IEntity;
 
     /// <summary>
     ///     Implements soft delete operation.
     /// </summary>
-    SoftDelete<T> SoftDelete<T>(FilterDefinition<T> definition)
-        where T : IEntity, ISoftDelete;
+    ISoftDelete<T> SoftDelete<T>(FilterDefinition<T> definition)
+        where T : IEntity, IDeleteOn;
 
     /// <summary>
     ///     Implements soft delete operation.
     /// </summary>
-    SoftDelete<T> SoftDelete<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
-        where T : IEntity, ISoftDelete;
+    ISoftDelete<T> SoftDelete<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
+        where T : IEntity, IDeleteOn;
 
     /// <summary>
     ///     Implements soft delete operation.
     /// </summary>
-    SoftDelete<T, TProjection> SoftDelete<T, TProjection>(FilterDefinition<T> definition)
-        where T : IEntity, ISoftDelete;
+    ISoftDelete<T, TProjection> SoftDelete<T, TProjection>(FilterDefinition<T> definition)
+        where T : IEntity, IDeleteOn;
 
     /// <summary>
     ///     Implements soft delete operation.
     /// </summary>
-    SoftDelete<T, TProjection> SoftDelete<T, TProjection>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
-        where T : IEntity, ISoftDelete;
+    ISoftDelete<T, TProjection> SoftDelete<T, TProjection>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
+        where T : IEntity, IDeleteOn;
 
     /// <summary>
     ///     Implements document logging operation.

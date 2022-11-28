@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MongoDB.Driver;
 using MongoSharpen.Test.Entities;
 using Xunit;
 
@@ -41,7 +42,7 @@ public partial class DbContextTests
         var ctx = DbFactory.Get("library");
 
         var book = _bookFixture.Books.First();
-        var count = await ctx.CountAsync(MongoDB.Driver.Builders<Book>.Filter.Eq(x => x.Id, book.Id));
+        var count = await ctx.CountAsync(Builders<Book>.Filter.Eq(x => x.Id, book.Id));
 
         count.Should().Be(1);
     }

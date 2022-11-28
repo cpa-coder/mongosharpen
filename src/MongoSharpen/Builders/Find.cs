@@ -4,7 +4,28 @@ using MongoSharpen.Internal;
 
 namespace MongoSharpen.Builders;
 
-public sealed class Find<T> where T : IEntity
+public interface IFind<T> where T : IEntity
+{
+    IFind<T> Sort(Action<List<SortDefinition<T>>> sortAction);
+    IFind<T> Skip(int skip);
+    IFind<T> Limit(int take);
+    Task<IAsyncCursor<T>> ExecuteCursorAsync(CancellationToken token = default);
+    Task<List<T>> ExecuteAsync(CancellationToken token = default);
+    Task<T> ExecuteSingleAsync(CancellationToken token = default);
+    Task<T?> ExecuteSingleOrDefaultAsync(CancellationToken token = default);
+    Task<T> ExecuteFirstAsync(CancellationToken token = default);
+    Task<T?> ExecuteFirstOrDefaultAsync(CancellationToken token = default);
+    Task<T> OneAsync(string id, CancellationToken token = default);
+    Task<T?> OneOrDefaultAsync(string id, CancellationToken token = default);
+    Task<List<T>> ManyAsync(Expression<Func<T, bool>> expression, CancellationToken token = default);
+
+    Task<List<T>> ManyAsync(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression,
+        CancellationToken token = default);
+
+    Task<bool> AnyAsync(CancellationToken token = default);
+}
+
+internal sealed class Find<T> : IFind<T> where T : IEntity
 {
     private readonly IDbContext _context;
     private FilterDefinition<T> _filters;
@@ -23,19 +44,19 @@ public sealed class Find<T> where T : IEntity
         _filters = filter.Invoke(Builders<T>.Filter);
     }
 
-    public Find<T> Sort(Action<List<SortDefinition<T>>> sortAction)
+    public IFind<T> Sort(Action<List<SortDefinition<T>>> sortAction)
     {
         sortAction.Invoke(_sorts);
         return this;
     }
 
-    public Find<T> Skip(int skip)
+    public IFind<T> Skip(int skip)
     {
         _options.Skip = skip;
         return this;
     }
 
-    public Find<T> Limit(int take)
+    public IFind<T> Limit(int take)
     {
         _options.Limit = take;
         return this;
@@ -136,7 +157,27 @@ public sealed class Find<T> where T : IEntity
     }
 }
 
-public sealed class Find<T, TProjection> where T : IEntity
+public interface IFind<T, TProjection> where T : IEntity
+{
+    IFind<T, TProjection> Sort(Action<List<SortDefinition<T>>> sortAction);
+    IFind<T, TProjection> Skip(int skip);
+    IFind<T, TProjection> Limit(int take);
+    IFind<T, TProjection> Project(Expression<Func<T, TProjection>> expression);
+    Task<IAsyncCursor<TProjection>> ExecuteCursorAsync(CancellationToken token = default);
+    Task<List<TProjection>> ExecuteAsync(CancellationToken token = default);
+    Task<TProjection> ExecuteSingleAsync(CancellationToken token = default);
+    Task<TProjection?> ExecuteSingleOrDefaultAsync(CancellationToken token = default);
+    Task<TProjection> ExecuteFirstAsync(CancellationToken token = default);
+    Task<TProjection?> ExecuteFirstOrDefaultAsync(CancellationToken token = default);
+    Task<TProjection> OneAsync(string id, CancellationToken token = default);
+    Task<TProjection?> OneOrDefaultAsync(string id, CancellationToken token = default);
+    Task<List<TProjection>> ManyAsync(Expression<Func<T, bool>> expression, CancellationToken token = default);
+
+    Task<List<TProjection>> ManyAsync(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression,
+        CancellationToken token = default);
+}
+
+internal sealed class Find<T, TProjection> : IFind<T, TProjection> where T : IEntity
 {
     private readonly IDbContext _context;
     private FilterDefinition<T> _filters;
@@ -155,25 +196,25 @@ public sealed class Find<T, TProjection> where T : IEntity
         _filters = filter.Invoke(Builders<T>.Filter);
     }
 
-    public Find<T, TProjection> Sort(Action<List<SortDefinition<T>>> sortAction)
+    public IFind<T, TProjection> Sort(Action<List<SortDefinition<T>>> sortAction)
     {
         sortAction.Invoke(_sorts);
         return this;
     }
 
-    public Find<T, TProjection> Skip(int skip)
+    public IFind<T, TProjection> Skip(int skip)
     {
         _options.Skip = skip;
         return this;
     }
 
-    public Find<T, TProjection> Limit(int take)
+    public IFind<T, TProjection> Limit(int take)
     {
         _options.Limit = take;
         return this;
     }
 
-    public Find<T, TProjection> Project(Expression<Func<T, TProjection>> expression)
+    public IFind<T, TProjection> Project(Expression<Func<T, TProjection>> expression)
     {
         if (_options.Projection != null) throw new InvalidOperationException("Projection already set");
 

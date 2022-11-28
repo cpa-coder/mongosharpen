@@ -14,7 +14,7 @@ public sealed partial class GlobalFilterTests
     {
         var conn = Environment.GetEnvironmentVariable("MONGOSHARPEN") ?? "mongodb://localhost:27107";
         var factory = new DbFactoryInternal(new ConventionRegistryWrapper()) { DefaultConnection = conn };
-        factory.SetGlobalFilter<ISoftDelete>("{ deleted : false }", Assembly.GetAssembly(typeof(Book))!);
+        factory.SetGlobalFilter<IDeleteOn>("{ deleted : false }", Assembly.GetAssembly(typeof(Book))!);
 
         var faker = new Faker();
         var books = new List<Book>();
@@ -45,7 +45,7 @@ public sealed partial class GlobalFilterTests
     {
         var conn = Environment.GetEnvironmentVariable("MONGOSHARPEN") ?? "mongodb://localhost:27107";
         var factory = new DbFactoryInternal(new ConventionRegistryWrapper()) { DefaultConnection = conn };
-        factory.SetGlobalFilter<ISoftDelete>("{ deleted : false }", Assembly.GetAssembly(typeof(Book))!);
+        factory.SetGlobalFilter<IDeleteOn>("{ deleted : false }", Assembly.GetAssembly(typeof(Book))!);
 
         var faker = new Faker();
         var books = new List<Book>();
@@ -61,7 +61,7 @@ public sealed partial class GlobalFilterTests
             books.Add(book);
         }
 
-        var context = factory.Get(Guid.NewGuid().ToString(), ignoreGlobalFilter: true);
+        var context = factory.Get(Guid.NewGuid().ToString(), true);
         await context.SaveAsync(books);
 
         var queryable = context.Queryable<Book>();

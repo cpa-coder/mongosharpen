@@ -9,7 +9,7 @@ using Xunit;
 
 namespace MongoSharpen.Test.DbContexts;
 
-public partial class DbContextTests 
+public partial class DbContextTests
 {
     private readonly BookFixture _bookFixture;
 
@@ -178,7 +178,7 @@ public partial class DbContextTests
                 Id = x.Id,
                 Title = x.Title,
                 ISBN = x.ISBN,
-                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name }),
+                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name })
             }).ExecuteAsync();
 
         books.Count.Should().Be(_bookFixture.Books.Count);
@@ -196,7 +196,7 @@ public partial class DbContextTests
                 Id = x.Id,
                 Title = x.Title,
                 ISBN = x.ISBN,
-                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name }),
+                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name })
             }).ExecuteAsync();
 
         actual.Count.Should().Be(1);
@@ -214,7 +214,7 @@ public partial class DbContextTests
                 Id = x.Id,
                 Title = x.Title,
                 ISBN = x.ISBN,
-                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name }),
+                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name })
             }).ExecuteAsync();
 
         actual.Count.Should().Be(1);
@@ -233,7 +233,7 @@ public partial class DbContextTests
                 Id = x.Id,
                 Title = x.Title,
                 ISBN = x.ISBN,
-                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name }),
+                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name })
             }).ExecuteAsync();
 
         var faker = new Faker();
@@ -253,7 +253,7 @@ public partial class DbContextTests
                 Id = x.Id,
                 Title = x.Title,
                 ISBN = x.ISBN,
-                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name }),
+                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name })
             }).ExecuteFirstAsync();
 
         actual.Id.Should().Be(_bookFixture.Books[1].Id);
@@ -270,7 +270,7 @@ public partial class DbContextTests
                 Id = x.Id,
                 Title = x.Title,
                 ISBN = x.ISBN,
-                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name }),
+                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name })
             }).ExecuteFirstAsync();
 
         actual.Id.Should().Be(_bookFixture.Books[0].Id);
@@ -291,7 +291,7 @@ public partial class DbContextTests
                 Id = x.Id,
                 Title = x.Title,
                 ISBN = x.ISBN,
-                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name }),
+                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name })
             }).ExecuteFirstAsync();
 
         actual.Id.Should().Be(sorted[5].Id);
@@ -308,7 +308,7 @@ public partial class DbContextTests
                 Id = x.Id,
                 Title = x.Title,
                 ISBN = x.ISBN,
-                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name }),
+                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name })
             }).ExecuteSingleAsync();
 
         actual.Id.Should().Be(first.Id);
@@ -325,7 +325,7 @@ public partial class DbContextTests
                     Id = x.Id,
                     Title = x.Title,
                     ISBN = x.ISBN,
-                    Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name }),
+                    Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name })
                 }).ExecuteSingleAsync());
     }
 
@@ -342,7 +342,7 @@ public partial class DbContextTests
                 Id = x.Id,
                 Title = x.Title,
                 ISBN = x.ISBN,
-                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name }),
+                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name })
             }).OneAsync(last.Id);
 
         result.Id.Should().Be(last.Id);
@@ -360,7 +360,7 @@ public partial class DbContextTests
                 Id = x.Id,
                 Title = x.Title,
                 ISBN = x.ISBN,
-                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name }),
+                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name })
             }).ManyAsync(x => x.Title.Contains("-"));
 
         result.Count.Should().Be(_bookFixture.Books.Count);
@@ -379,7 +379,7 @@ public partial class DbContextTests
                 Id = x.Id,
                 Title = x.Title,
                 ISBN = x.ISBN,
-                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name }),
+                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name })
             }).ManyAsync(x => x.Match(t => t.Title == first.Title));
 
         result.Count.Should().Be(1);

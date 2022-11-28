@@ -4,7 +4,14 @@ using MongoSharpen.Internal;
 
 namespace MongoSharpen.Builders;
 
-public class SoftDelete<T> where T : IEntity, ISoftDelete
+public interface ISoftDelete<T> where T : IEntity, IDeleteOn
+{
+    Task<DeleteResult> ExecuteManyAsync(string userId, bool forceDelete = false, CancellationToken token = default);
+    Task<DeleteResult> ExecuteOneAsync(string userId, bool forceDelete = false, CancellationToken token = default);
+    Task<T> ExecuteAndGetAsync(string userId, bool forceDelete = false, CancellationToken token = default);
+}
+
+internal class SoftDelete<T> : ISoftDelete<T> where T : IEntity, IDeleteOn
 {
     private readonly IDbContext _context;
     private FilterDefinition<T> _filters;
@@ -82,7 +89,13 @@ public class SoftDelete<T> where T : IEntity, ISoftDelete
     }
 }
 
-public class SoftDelete<T, TProjection> where T : IEntity, ISoftDelete
+public interface ISoftDelete<T, TProjection> where T : IEntity, IDeleteOn
+{
+    ISoftDelete<T, TProjection> Project(Expression<Func<T, TProjection>> expression);
+    Task<TProjection> ExecuteAndGetAsync(string userId, bool forceDelete = false, CancellationToken token = default);
+}
+
+internal class SoftDelete<T, TProjection> : ISoftDelete<T, TProjection> where T : IEntity, IDeleteOn
 {
     private readonly IDbContext _context;
     private FilterDefinition<T> _filters;
@@ -95,7 +108,7 @@ public class SoftDelete<T, TProjection> where T : IEntity, ISoftDelete
         _filters = expression(Builders<T>.Filter);
     }
 
-    public SoftDelete<T, TProjection> Project(Expression<Func<T, TProjection>> expression)
+    public ISoftDelete<T, TProjection> Project(Expression<Func<T, TProjection>> expression)
     {
         if (_options.Projection != null) throw new InvalidOperationException("Projection already set");
 

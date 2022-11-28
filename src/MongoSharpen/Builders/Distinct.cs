@@ -3,7 +3,13 @@ using MongoSharpen.Internal;
 
 namespace MongoSharpen.Builders;
 
-public sealed class Distinct<T, TProperty> where T : IEntity
+public interface IDistinct<T, TProperty> where T : IEntity
+{
+    IDistinct<T, TProperty> Property(string property);
+    Task<List<TProperty>> ExecuteAsync(CancellationToken cancellation = default);
+}
+
+internal sealed class Distinct<T, TProperty> : IDistinct<T, TProperty> where T : IEntity
 {
     private readonly IDbContext _context;
     private FieldDefinition<T, TProperty>? _field;
@@ -15,13 +21,13 @@ public sealed class Distinct<T, TProperty> where T : IEntity
         _filters = filter.Invoke(Builders<T>.Filter);
     }
 
-    
     public Distinct(IDbContext context)
     {
         _context = context;
         _filters = FilterDefinition<T>.Empty;
     }
-    public Distinct<T, TProperty> Property(string property)
+
+    public IDistinct<T, TProperty> Property(string property)
     {
         if (_field != null) throw new InvalidOperationException("Property already set");
 

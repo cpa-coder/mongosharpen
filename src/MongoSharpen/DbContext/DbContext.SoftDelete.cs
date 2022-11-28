@@ -5,15 +5,15 @@ namespace MongoSharpen;
 
 internal sealed partial class DbContext
 {
-    public SoftDelete<T> SoftDelete<T>(FilterDefinition<T> definition)
-        where T : IEntity, ISoftDelete => new(this, _ => definition);
+    public ISoftDelete<T> SoftDelete<T>(FilterDefinition<T> definition)
+        where T : IEntity, IDeleteOn => new SoftDelete<T>(this, _ => definition);
 
-    public SoftDelete<T> SoftDelete<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
-        where T : IEntity, ISoftDelete => new(this, expression);
+    public ISoftDelete<T> SoftDelete<T>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
+        where T : IEntity, IDeleteOn => new SoftDelete<T>(this, expression);
 
-    public SoftDelete<T, TProjection> SoftDelete<T, TProjection>(FilterDefinition<T> definition)
-        where T : IEntity, ISoftDelete => new(this, _ => definition);
+    public ISoftDelete<T, TProjection> SoftDelete<T, TProjection>(FilterDefinition<T> definition)
+        where T : IEntity, IDeleteOn => new SoftDelete<T, TProjection>(this, _ => definition);
 
-    public SoftDelete<T, TProjection> SoftDelete<T, TProjection>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
-        where T : IEntity, ISoftDelete => new(this, expression);
+    public ISoftDelete<T, TProjection> SoftDelete<T, TProjection>(Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
+        where T : IEntity, IDeleteOn => new SoftDelete<T, TProjection>(this, expression);
 }

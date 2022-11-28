@@ -2,7 +2,12 @@
 
 namespace MongoSharpen.Builders;
 
-public sealed class Transaction : IDisposable
+public interface ITransaction : IDisposable
+{
+    Task CommitAsync(CancellationToken cancellation = default);
+}
+
+internal sealed class Transaction : ITransaction
 {
     private readonly IDbContext _context;
 

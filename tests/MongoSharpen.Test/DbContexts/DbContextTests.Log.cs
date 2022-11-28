@@ -103,7 +103,7 @@ public partial class DbContextTests
 
         count.Should().Be(_bookFixture.Books.Count);
     }
-    
+
     [Fact]
     public async Task log_by_filter_definition__should_save_log_in_db()
     {

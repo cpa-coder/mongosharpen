@@ -8,17 +8,12 @@ internal sealed partial class DbContext : IDbContext
 {
     private readonly IMongoClient _client;
     private readonly IMongoDatabase _database;
-    private IClientSessionHandle? _session;
     private readonly bool _ignoreGlobalFilters;
     private readonly GlobalFilter _globalFilter;
 
     IMongoClient IDbContext.Client => _client;
 
-    IClientSessionHandle? IDbContext.Session
-    {
-        get => _session;
-        set => _session = value;
-    }
+    IClientSessionHandle? IDbContext.Session { get; set; }
 
     IMongoDatabase IDbContext.Database => _database;
 
@@ -51,7 +46,7 @@ internal sealed partial class DbContext : IDbContext
         return exist;
     }
 
-    public Transaction Transaction(ClientSessionOptions? options = null) => new(this, options);
+    public ITransaction Transaction(ClientSessionOptions? options = null) => new Transaction(this, options);
 
     public Task DropDataBaseAsync(CancellationToken token = default)
     {

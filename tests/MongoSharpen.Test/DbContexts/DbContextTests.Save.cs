@@ -53,7 +53,7 @@ public partial class DbContextTests
         var book = new Book
         {
             Title = $"{faker.Commerce.Product()}-{faker.Commerce.Department()}",
-            ISBN = faker.Vehicle.Model(),
+            ISBN = faker.Vehicle.Model()
         };
 
         await ctx.SaveAsync(book);
@@ -151,7 +151,7 @@ public partial class DbContextTests
             var book = new Book
             {
                 Title = $"{faker.Commerce.Product()}-{faker.Commerce.Department()}",
-                ISBN = faker.Vehicle.Model(),
+                ISBN = faker.Vehicle.Model()
             };
             books.Add(book);
         }
@@ -160,9 +160,6 @@ public partial class DbContextTests
 
         var result = await ctx.Find<Book>().ExecuteAsync();
 
-        foreach (var i in result)
-        {
-            i.CreatedOn.Should().NotBeAfter(DateTime.UtcNow);
-        }
+        foreach (var i in result) i.CreatedOn.Should().NotBeAfter(DateTime.UtcNow);
     }
 }
