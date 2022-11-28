@@ -1,4 +1,5 @@
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 
 namespace MongoSharpen.Internal;
 
@@ -21,7 +22,10 @@ internal sealed class ContextHelper
     {
         if (Instance._clients.ContainsKey(connection)) return Instance._clients[connection];
 
-        var client = new MongoClient(connection);
+        var settings = MongoClientSettings.FromConnectionString(connection);
+        settings.LinqProvider = LinqProvider.V3;
+
+        var client = new MongoClient(settings);
         Instance._clients.TryAdd(connection, client);
 
         return client;
