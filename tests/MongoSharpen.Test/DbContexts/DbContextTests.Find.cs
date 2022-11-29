@@ -66,6 +66,21 @@ public partial class DbContextTests
     }
 
     [Fact]
+    public async Task find__with_no_projection_and_with_sort_and_collation_override__should_return_sorted_items()
+    {
+        var sorted = _bookFixture.Books.OrderBy(t => t.Title).ToList();
+
+        var ctx = DbFactory.Get("library");
+        var actual = await ctx.Find<Book>()
+            .Sort(x => x.By(t => t.Title))
+            .Collation(new Collation("fil"))
+            .ExecuteAsync();
+
+        var index = new Random().Next(0, 9);
+        actual[index].Id.Should().Be(sorted[index].Id);
+    }
+
+    [Fact]
     public async Task find__with_no_projection_and_with_skip__should_return_item_after_skip()
     {
         var ctx = DbFactory.Get("library");
@@ -239,6 +254,27 @@ public partial class DbContextTests
         var faker = new Faker();
         var index = faker.Random.Number(0, 9);
 
+        actual[index].Id.Should().Be(sorted[index].Id);
+    }
+
+    [Fact]
+    public async Task find__with_projection_and_with_sort_and_collation_override__should_return_sorted_items()
+    {
+        var sorted = _bookFixture.Books.OrderByDescending(t => t.Title).ToList();
+
+        var ctx = DbFactory.Get("library");
+        var actual = await ctx.Find<Book, BookDto>()
+            .Sort(x => x.By(t => t.Title, Order.Descending))
+            .Collation(new Collation("fil"))
+            .Project(x => new BookDto
+            {
+                Id = x.Id,
+                Title = x.Title,
+                ISBN = x.ISBN,
+                Authors = x.Authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name })
+            }).ExecuteAsync();
+
+        var index = new Random().Next(0, 9);
         actual[index].Id.Should().Be(sorted[index].Id);
     }
 

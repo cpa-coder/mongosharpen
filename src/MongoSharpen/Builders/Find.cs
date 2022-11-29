@@ -7,6 +7,7 @@ namespace MongoSharpen.Builders;
 public interface IFind<T> where T : IEntity
 {
     IFind<T> Sort(Action<List<SortDefinition<T>>> sortAction);
+    IFind<T> Collation(Collation collation);
     IFind<T> Skip(int skip);
     IFind<T> Limit(int take);
     Task<IAsyncCursor<T>> ExecuteCursorAsync(CancellationToken token = default);
@@ -35,6 +36,7 @@ internal sealed class Find<T> : IFind<T> where T : IEntity
     public Find(IDbContext context)
     {
         _context = context;
+        _options.Collation = new Collation("en_US");
         _filters = Builders<T>.Filter.Empty;
     }
 
@@ -47,6 +49,12 @@ internal sealed class Find<T> : IFind<T> where T : IEntity
     public IFind<T> Sort(Action<List<SortDefinition<T>>> sortAction)
     {
         sortAction.Invoke(_sorts);
+        return this;
+    }
+
+    public IFind<T> Collation(Collation collation)
+    {
+        _options.Collation = collation;
         return this;
     }
 
@@ -160,6 +168,7 @@ internal sealed class Find<T> : IFind<T> where T : IEntity
 public interface IFind<T, TProjection> where T : IEntity
 {
     IFind<T, TProjection> Sort(Action<List<SortDefinition<T>>> sortAction);
+    IFind<T, TProjection> Collation(Collation collation);
     IFind<T, TProjection> Skip(int skip);
     IFind<T, TProjection> Limit(int take);
     IFind<T, TProjection> Project(Expression<Func<T, TProjection>> expression);
@@ -187,6 +196,7 @@ internal sealed class Find<T, TProjection> : IFind<T, TProjection> where T : IEn
     public Find(IDbContext context)
     {
         _context = context;
+        _options.Collation = new Collation("en_US");
         _filters = Builders<T>.Filter.Empty;
     }
 
@@ -199,6 +209,12 @@ internal sealed class Find<T, TProjection> : IFind<T, TProjection> where T : IEn
     public IFind<T, TProjection> Sort(Action<List<SortDefinition<T>>> sortAction)
     {
         sortAction.Invoke(_sorts);
+        return this;
+    }
+
+    public IFind<T, TProjection> Collation(Collation collation)
+    {
+        _options.Collation = collation;
         return this;
     }
 
