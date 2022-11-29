@@ -29,7 +29,7 @@ public class BookFixture : IAsyncLifetime
         {
             var book = new Book
             {
-                Title = $"{faker.Random.Number(1, 10)}-{faker.Commerce.Department()}",
+                Title = $"{faker.Random.Number(1, 10)}-{faker.Lorem.Text()}",
                 ISBN = faker.Vehicle.Model(),
                 Authors = new List<Author>
                 {
