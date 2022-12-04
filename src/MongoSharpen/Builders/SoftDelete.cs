@@ -43,7 +43,11 @@ internal class SoftDelete<T> : ISoftDelete<T> where T : IEntity, IDeleteOn
             ? await collection.UpdateManyAsync(_filters, definition, cancellationToken: token)
             : await collection.UpdateManyAsync(session, _filters, definition, cancellationToken: token);
 
-        return new DeleteResult.Acknowledged(result.ModifiedCount);
+        return new DeleteResult
+        {
+            DeletedCount = result.ModifiedCount,
+            Acknowledge = result.IsAcknowledged
+        };
     }
 
     public async Task<DeleteResult> ExecuteOneAsync(string userId, bool forceDelete = false, CancellationToken token = default)
@@ -65,7 +69,11 @@ internal class SoftDelete<T> : ISoftDelete<T> where T : IEntity, IDeleteOn
             ? await collection.UpdateOneAsync(_filters, definition, cancellationToken: token)
             : await collection.UpdateOneAsync(session, _filters, definition, cancellationToken: token);
 
-        return new DeleteResult.Acknowledged(result.ModifiedCount);
+        return new DeleteResult
+        {
+            DeletedCount = result.ModifiedCount,
+            Acknowledge = result.IsAcknowledged
+        };
     }
 
     public async Task<T> ExecuteAndGetAsync(string userId, bool forceDelete = false, CancellationToken token = default)
