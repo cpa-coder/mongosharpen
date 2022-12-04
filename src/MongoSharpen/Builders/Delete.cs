@@ -22,28 +22,40 @@ internal sealed class Delete<T> : IDelete<T> where T : IEntity
         _filters = filter.Invoke(Builders<T>.Filter);
     }
 
-    public Task<DeleteResult> ExecuteManyAsync(bool forceDelete = false, CancellationToken token = default)
+    public async Task<DeleteResult> ExecuteManyAsync(bool forceDelete = false, CancellationToken token = default)
     {
         if (!forceDelete && Cache<T>.Get().ForSystemGeneration)
             _filters &= Builders<T>.Filter.Eq(x => ((ISystemGenerated) x).SystemGenerated, false);
 
         _filters = _context.MergeWithGlobalFilter(_filters);
 
-        return _context.Session == null
-            ? Cache<T>.GetCollection(_context).DeleteManyAsync(_filters, token)
-            : Cache<T>.GetCollection(_context).DeleteManyAsync(_context.Session, _filters, cancellationToken: token);
+        var result = _context.Session == null
+            ? await Cache<T>.GetCollection(_context).DeleteManyAsync(_filters, token)
+            : await Cache<T>.GetCollection(_context).DeleteManyAsync(_context.Session, _filters, cancellationToken: token);
+
+        return new DeleteResult
+        {
+            DeletedCount = result.DeletedCount,
+            Acknowledge = result.IsAcknowledged
+        };
     }
 
-    public Task<DeleteResult> ExecuteOneAsync(bool forceDelete = false, CancellationToken token = default)
+    public async Task<DeleteResult> ExecuteOneAsync(bool forceDelete = false, CancellationToken token = default)
     {
         if (!forceDelete && Cache<T>.Get().ForSystemGeneration)
             _filters &= Builders<T>.Filter.Eq(x => ((ISystemGenerated) x).SystemGenerated, false);
 
         _filters = _context.MergeWithGlobalFilter(_filters);
 
-        return _context.Session == null
-            ? Cache<T>.GetCollection(_context).DeleteOneAsync(_filters, token)
-            : Cache<T>.GetCollection(_context).DeleteOneAsync(_context.Session, _filters, cancellationToken: token);
+        var result = _context.Session == null
+            ? await Cache<T>.GetCollection(_context).DeleteOneAsync(_filters, token)
+            : await Cache<T>.GetCollection(_context).DeleteOneAsync(_context.Session, _filters, cancellationToken: token);
+
+        return new DeleteResult
+        {
+            DeletedCount = result.DeletedCount,
+            Acknowledge = result.IsAcknowledged
+        };
     }
 
     public async Task<T> GetAndExecuteAsync(bool forceDelete = false, CancellationToken token = default)

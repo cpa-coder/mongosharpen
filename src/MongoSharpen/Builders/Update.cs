@@ -38,7 +38,7 @@ internal sealed class Update<T> : IUpdate<T> where T : IEntity
         return this;
     }
 
-    public Task<UpdateResult> ExecuteAsync(CancellationToken token = default)
+    public async Task<UpdateResult> ExecuteAsync(CancellationToken token = default)
     {
         if (Cache<T>.Get().HasModifiedOn) _updates.Set(b => b.CurrentDate(Cache<T>.Get().ModifiedOnPropName));
 
@@ -48,9 +48,16 @@ internal sealed class Update<T> : IUpdate<T> where T : IEntity
 
         _filters = _context.MergeWithGlobalFilter(_filters);
 
-        return session == null
-            ? collection.UpdateManyAsync(_filters, definition, cancellationToken: token)
-            : collection.UpdateManyAsync(session, _filters, definition, cancellationToken: token);
+        var result = session == null
+            ? await collection.UpdateManyAsync(_filters, definition, cancellationToken: token)
+            : await collection.UpdateManyAsync(session, _filters, definition, cancellationToken: token);
+
+        return new UpdateResult
+        {
+            MatchedCount = result.MatchedCount,
+            ModifiedCount = result.ModifiedCount,
+            Acknowledge = result.IsAcknowledged
+        };
     }
 
     public Task<T> ExecuteAndGetAsync(CancellationToken token = default)
