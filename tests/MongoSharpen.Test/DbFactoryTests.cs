@@ -198,7 +198,7 @@ public class DbFactoryTests
     public async Task on_get_with_multiple_transactions_with_no_conflicting_document_write()
     {
         const string dbName = "trans-db";
-        var factory = new DbFactoryInternal(_wrapperMock.Object) { DefaultConnection = "mongodb://localhost:30051" };
+        var factory = new DbFactoryInternal(_wrapperMock.Object) { DefaultConnection = "mongodb://localhost:30060" };
 
         // to ensure new that the database is created
         foreach (var context in factory.DbContexts)
@@ -241,7 +241,7 @@ public class DbFactoryTests
     public async Task on_get_with_multiple_transactions_with_conflicting_document_write()
     {
         const string dbName = "trans-db";
-        var factory = new DbFactoryInternal(_wrapperMock.Object) { DefaultConnection = "mongodb://localhost:30051" };
+        var factory = new DbFactoryInternal(_wrapperMock.Object) { DefaultConnection = "mongodb://localhost:30060" };
 
         // to ensure new that the database is created
         foreach (var context in factory.DbContexts)
