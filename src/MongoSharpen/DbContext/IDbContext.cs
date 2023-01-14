@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using MongoSharpen.Builders;
@@ -305,6 +306,13 @@ public interface IDbContext
     /// </summary>
     IMongoCollection<T> Collection<T>() where T : IEntity;
 
+    /// <summary>
+    /// Exposes the MongoDB's collection with a <see cref="BsonDocument"/>.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    IMongoCollection<BsonDocument> CollectionLog<T>() where T : IEntity;
+    
     /// <summary>
     ///     Exposes the MongoDB's <see cref="IMongoQueryable" />.
     /// </summary>

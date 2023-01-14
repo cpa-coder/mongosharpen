@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
 using MongoSharpen.Builders;
 using MongoSharpen.Internal;
 
@@ -55,6 +56,7 @@ internal sealed partial class DbContext : IDbContext
     }
 
     public IMongoCollection<T> Collection<T>() where T : IEntity => Cache<T>.GetCollection(this);
+    public IMongoCollection<BsonDocument> CollectionLog<T>() where T : IEntity => Cache<T>.GetCollection<BsonDocument>(this,"log");
 
     FilterDefinition<T> IDbContext.MergeWithGlobalFilter<T>(FilterDefinition<T> filter) =>
         MergeFilterInternal(filter);

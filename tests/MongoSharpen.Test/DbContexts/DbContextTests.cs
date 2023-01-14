@@ -84,4 +84,12 @@ public partial class DbContextTests : IClassFixture<BookFixture>
 
         collection.Database.Should().Be(ctx.Database);
     }
+
+    [Fact]
+    public void collection_log__should_return_bson_document_with_log_suffix()
+    {
+        var ctx = DbFactory.Get("library");
+        var collection = ctx.CollectionLog<Book>();
+        collection.CollectionNamespace.CollectionName.Should().Be("books.log");
+    }
 }
