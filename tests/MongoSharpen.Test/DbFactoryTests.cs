@@ -3,23 +3,23 @@ using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using MongoSharpen.Test.Entities;
 using Moq;
+using Moq.AutoMock;
 using Xunit;
 
 namespace MongoSharpen.Test;
 
+[Xunit.Collection("Server collection")]
 public class DbFactoryTests
 {
-    private readonly Mock<IConventionRegistryWrapper> _wrapperMock;
-
-    public DbFactoryTests()
-    {
-        _wrapperMock = new Mock<IConventionRegistryWrapper>();
-    }
+    private const string ConnectionString = "mongodb://localhost:41253";
+    private string RandomDb() => Guid.NewGuid().ToString();
 
     [Fact]
     public void has_default_camel_case_convention_pack()
     {
-        var factory = new DbFactoryInternal(_wrapperMock.Object);
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
+
         var count = factory.ConventionNames.Count(c => c.Contains("camelCase"));
         count.Should().Be(1);
     }
@@ -27,9 +27,10 @@ public class DbFactoryTests
     [Fact]
     public void on_add_convention__should_add_to_convention_list()
     {
-        var pack = new ConventionPack { new IgnoreIfNullConvention(true) };
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
 
-        var factory = new DbFactoryInternal(_wrapperMock.Object);
+        var pack = new ConventionPack { new IgnoreIfNullConvention(true) };
         factory.AddConvention("ignore if null", pack);
 
         var count = factory.ConventionNames.Count(c => c.Contains("ignore if null"));
@@ -39,8 +40,11 @@ public class DbFactoryTests
     [Fact]
     public void on_add_convention__when_already_started_getting_db_context__should_throw_exception()
     {
-        var factory = new DbFactoryInternal(_wrapperMock.Object) { DefaultConnection = "mongodb://localhost:27107" };
-        factory.Get("new-db");
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
+        factory.DefaultConnection = ConnectionString;
+
+        factory.Get(RandomDb());
 
         var pack = new ConventionPack { new IgnoreIfNullConvention(true) };
         Assert.Throws<InvalidOperationException>(() => factory.AddConvention("ignore if null", pack));
@@ -49,7 +53,9 @@ public class DbFactoryTests
     [Fact]
     public void on_remove_convention__should_remove_to_convention_list()
     {
-        var factory = new DbFactoryInternal(_wrapperMock.Object);
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
+
         factory.RemoveConvention("camelCase");
 
         factory.ConventionNames.Count.Should().Be(0);
@@ -58,8 +64,11 @@ public class DbFactoryTests
     [Fact]
     public void on_remove_convention__when_already_started_getting_db_context__should_throw_exception()
     {
-        var factory = new DbFactoryInternal(_wrapperMock.Object) { DefaultConnection = "mongodb://localhost:27107" };
-        factory.Get("new-db");
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
+        factory.DefaultConnection = ConnectionString;
+        
+        factory.Get(RandomDb());
 
         Assert.Throws<InvalidOperationException>(() => factory.RemoveConvention("camelCase"));
     }
@@ -67,75 +76,97 @@ public class DbFactoryTests
     [Fact]
     public void on_set_default_connection__when_empty_string__should_throw_argument_exception()
     {
-        var factory = new DbFactoryInternal(_wrapperMock.Object);
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
+
         Assert.Throws<ArgumentException>(() => factory.DefaultConnection = string.Empty);
     }
 
     [Fact]
     public void on_set_default_connection__when_already_set__should_throw_invalid_operation_exception()
     {
-        var factory = new DbFactoryInternal(_wrapperMock.Object) { DefaultConnection = "mongodb://localhost:27107" };
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
+        factory.DefaultConnection = ConnectionString;
+
         Assert.Throws<InvalidOperationException>(() => factory.DefaultConnection = "another connection");
     }
 
     [Fact]
     public void on_set_default_database__when_empty_string__should_throw_argument_exception()
     {
-        var factory = new DbFactoryInternal(_wrapperMock.Object);
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
         Assert.Throws<ArgumentException>(() => factory.DefaultDatabase = string.Empty);
     }
 
     [Fact]
     public void on_set_default_database__when_already_set__should_throw_invalid_operation_exception()
     {
-        var factory = new DbFactoryInternal(_wrapperMock.Object) { DefaultDatabase = "default-db" };
-        Assert.Throws<InvalidOperationException>(() => factory.DefaultDatabase = "another db");
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
+        factory.DefaultDatabase = RandomDb();
+
+        Assert.Throws<InvalidOperationException>(() => factory.DefaultDatabase = RandomDb());
     }
 
     [Fact]
     public void on_get_default_database__when_default_database_is_not_set__should_throw_invalid_operation_exception()
     {
-        var factory = new DbFactoryInternal(_wrapperMock.Object);
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
+
         Assert.Throws<ArgumentException>(() => factory.DefaultDatabase);
     }
 
     [Fact]
     public void on_get__when_no_default_database_and_connection__should_throw_argument_exception()
     {
-        var factory = new DbFactoryInternal(_wrapperMock.Object);
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
+
         Assert.Throws<ArgumentException>(() => factory.Get());
     }
 
     [Fact]
     public void on_get__when_no_default_database__should_throw_argument_exception()
     {
-        var factory = new DbFactoryInternal(_wrapperMock.Object) { DefaultConnection = "mongodb://localhost:27107" };
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
+        factory.DefaultConnection = ConnectionString;
+
         Assert.Throws<ArgumentException>(() => factory.Get());
     }
 
     [Fact]
     public void on_get__when_properly_configured__should_return_db_context()
     {
-        var factory = new DbFactoryInternal(_wrapperMock.Object)
-            { DefaultConnection = "mongodb://localhost:27107", DefaultDatabase = "db" };
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
+        factory.DefaultConnection = ConnectionString;
+        factory.DefaultDatabase = RandomDb();
 
         var context = factory.Get();
-        context.Database.DatabaseNamespace.DatabaseName.Should().Be("db");
+        context.Database.DatabaseNamespace.DatabaseName.Should().Be(factory.DefaultDatabase);
     }
 
     [Fact]
     public void on_get__when_no_default_connection__should_throw_invalid_operation_exception()
     {
-        var factory = new DbFactoryInternal(_wrapperMock.Object);
-        Assert.Throws<InvalidOperationException>(() => factory.Get("new-db"));
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
+
+        Assert.Throws<InvalidOperationException>(() => factory.Get(RandomDb()));
     }
 
     [Fact]
     public void on_get__should_get_new_db_context()
     {
-        var factory = new DbFactoryInternal(_wrapperMock.Object) { DefaultConnection = "mongodb://localhost:27107" };
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
+        factory.DefaultConnection = ConnectionString;
 
-        var context = factory.Get("db");
+        var context = factory.Get(RandomDb());
 
         context.Should().NotBeNull();
         factory.DbContexts.Count.Should().Be(1);
@@ -144,20 +175,25 @@ public class DbFactoryTests
     [Fact]
     public void on_get__conventions_should_be_registered()
     {
-        var factory = new DbFactoryInternal(_wrapperMock.Object) { DefaultConnection = "mongodb://localhost:27107" };
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
+        factory.DefaultConnection = ConnectionString;
 
-        factory.Get("db");
+        factory.Get(RandomDb());
 
-        _wrapperMock.Verify(m => m.Register(It.IsAny<string>(), It.IsAny<ConventionPack>()));
+        mocker.GetMock<IConventionRegistryWrapper>()
+            .Verify(m => m.Register(It.IsAny<string>(), It.IsAny<ConventionPack>()));
     }
 
     [Fact]
     public void on_get__should_always_get_new_db_context()
     {
-        var factory = new DbFactoryInternal(_wrapperMock.Object) { DefaultConnection = "mongodb://localhost:27107" };
-        var context = factory.Get("db");
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
+        factory.DefaultConnection = ConnectionString;
 
-        var newContext = factory.Get("db");
+        var context = factory.Get(RandomDb());
+        var newContext = factory.Get(RandomDb());
 
         newContext.Should().NotBe(context);
     }
@@ -165,9 +201,10 @@ public class DbFactoryTests
     [Fact]
     public void on_get_with_custom_connection__should_get_new_db_context()
     {
-        var factory = new DbFactoryInternal(_wrapperMock.Object);
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
 
-        var context = factory.Get("db", "mongodb://localhost:27107");
+        var context = factory.Get(RandomDb(), ConnectionString);
 
         context.Should().NotBeNull();
         factory.DbContexts.Count.Should().Be(1);
@@ -176,35 +213,36 @@ public class DbFactoryTests
     [Fact]
     public void on_get_with_custom_connection__conventions_should_be_registered()
     {
-        var factory = new DbFactoryInternal(_wrapperMock.Object);
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
 
-        factory.Get("db", "mongodb://localhost:27107");
+        factory.Get(RandomDb(), ConnectionString);
 
-        _wrapperMock.Verify(m => m.Register(It.IsAny<string>(), It.IsAny<ConventionPack>()),
+        mocker.GetMock<IConventionRegistryWrapper>()
+            .Verify(m => m.Register(It.IsAny<string>(), It.IsAny<ConventionPack>()),
             Times.Exactly(factory.ConventionNames.Count));
     }
 
     [Fact]
     public void on_get_with_custom_connection__should_always_get_new_db_context()
     {
-        var factory = new DbFactoryInternal(_wrapperMock.Object);
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
 
-        var context = factory.Get("db", "mongodb://localhost:27107");
-        var newContext = factory.Get("db", "mongodb://localhost:27107");
+        var context = factory.Get(RandomDb(), ConnectionString);
+        var newContext = factory.Get(RandomDb(), ConnectionString);
         newContext.Should().NotBe(context);
     }
 
     [Fact]
     public async Task on_get_with_multiple_transactions_with_no_conflicting_document_write()
     {
-        const string dbName = "trans-db";
-        var factory = new DbFactoryInternal(_wrapperMock.Object) { DefaultConnection = "mongodb://localhost:30060" };
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
+        factory.DefaultConnection = ConnectionString;
 
-        // to ensure new that the database is created
-        foreach (var context in factory.DbContexts)
-            await context.DropDataBaseAsync();
-
-        async Task Task1(DbFactoryInternal f)
+        var dbName = RandomDb();
+        async Task Task1(IDbFactory f)
         {
             var context = f.Get(dbName);
             using var trans = context.Transaction();
@@ -217,7 +255,7 @@ public class DbFactoryTests
             await trans.CommitAsync();
         }
 
-        async Task Task2(DbFactoryInternal f)
+        async Task Task2(IDbFactory f)
         {
             var context = f.Get(dbName);
 
@@ -232,22 +270,17 @@ public class DbFactoryTests
 
         // to test that this does not throw an exception
         await Task.WhenAll(Task1(factory), Task2(factory));
-
-        foreach (var context in factory.DbContexts)
-            await context.DropDataBaseAsync();
     }
 
     [Fact]
     public async Task on_get_with_multiple_transactions_with_conflicting_document_write()
     {
-        const string dbName = "trans-db";
-        var factory = new DbFactoryInternal(_wrapperMock.Object) { DefaultConnection = "mongodb://localhost:30060" };
+        var dbName = RandomDb();
+        var mocker = new AutoMocker();
+        var factory = mocker.CreateInstance<DbFactoryInternal>();
+        factory.DefaultConnection = ConnectionString;
 
-        // to ensure new that the database is created
-        foreach (var context in factory.DbContexts)
-            await context.DropDataBaseAsync();
-
-        async Task Task1(DbFactoryInternal f)
+        async Task Task1(IDbFactory f)
         {
             var context = f.Get(dbName);
             using var trans = context.Transaction();
@@ -260,7 +293,7 @@ public class DbFactoryTests
             await trans.CommitAsync();
         }
 
-        async Task Task2(DbFactoryInternal f)
+        async Task Task2(IDbFactory f)
         {
             var context = f.Get(dbName);
 
@@ -282,9 +315,5 @@ public class DbFactoryTests
         }
 
         await Assert.ThrowsAsync<MongoCommandException>(() => Task.WhenAll(Task1(factory), Task2(factory)));
-
-        // to ensure new that the database is created
-        foreach (var context in factory.DbContexts)
-            await context.DropDataBaseAsync();
     }
 }

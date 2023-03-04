@@ -5,14 +5,16 @@ using Xunit;
 
 namespace MongoSharpen.Test.DbContexts;
 
-[CollectionDefinition("db-context")]
-public class ContextCollection : ICollectionFixture<DbContextFixture>
-{
-}
-
-[Xunit.Collection("db-context")]
+[Xunit.Collection("Server collection")]
 public partial class DbContextTests : IClassFixture<BookFixture>
 {
+    private readonly BookFixture _bookFixture;
+
+    public DbContextTests(BookFixture bookFixture)
+    {
+        _bookFixture = bookFixture;
+    }
+
     [Fact]
     public async Task exist__should_return_valid_result()
     {
