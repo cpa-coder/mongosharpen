@@ -14,7 +14,10 @@ public static class DbFactory
     {
     }
 
-    private static DbFactoryInternal Instance { get; } = new(new ConventionRegistryWrapper());
+    /// <summary>
+    /// Get an instance of <see cref="IDbFactory"/>
+    /// </summary>
+    public static IDbFactory Instance { get; } = new DbFactoryInternal(new ConventionRegistryWrapper());
 
     /// <summary>
     ///     Adds a convention to the default <see cref="ConventionRegistry" />.
@@ -88,6 +91,9 @@ public static class DbFactory
     public static IDbContext Get(string database, string connection, bool ignoreGlobalFilter = false) =>
         Instance.Get(database, connection, ignoreGlobalFilter);
 
+    /// <summary>
+    ///     Get the list of all <see cref="IDbContext" /> instances
+    /// </summary>
     public static List<IDbContext> DbContexts => Instance.DbContexts;
 
     /// <summary>

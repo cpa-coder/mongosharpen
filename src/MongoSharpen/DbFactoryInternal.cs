@@ -5,7 +5,7 @@ using MongoDB.Driver;
 
 namespace MongoSharpen;
 
-internal sealed class DbFactoryInternal
+internal sealed class DbFactoryInternal : IDbFactory
 {
     private readonly GlobalFilter _globalFilter;
     private readonly IConventionRegistryWrapper _registryWrapper;
@@ -13,7 +13,7 @@ internal sealed class DbFactoryInternal
     /// <summary>
     ///     Instantiate DbFactory for internal testing
     /// </summary>
-    internal DbFactoryInternal(IConventionRegistryWrapper registryWrapper)
+    public DbFactoryInternal(IConventionRegistryWrapper registryWrapper)
     {
         _registryWrapper = registryWrapper;
         DbContexts = new List<IDbContext>();
@@ -146,12 +146,12 @@ internal sealed class DbFactoryInternal
 
     public List<IDbContext> DbContexts { get; }
 
-    internal void SetGlobalFilter<T>(string jsonString, Assembly assembly, bool prepend = false) =>
+    public void SetGlobalFilter<T>(string jsonString, Assembly assembly, bool prepend = false) =>
         _globalFilter.Set<T>(jsonString, assembly, prepend);
 
-    internal void SetGlobalFilter<T>(FilterDefinition<T> filter, bool prepend = false) where T : IEntity =>
+    public void SetGlobalFilter<T>(FilterDefinition<T> filter, bool prepend = false) where T : IEntity =>
         _globalFilter.Set(filter, prepend);
 
-    internal void SetGlobalFilter<T>(BsonDocument document, bool prepend = false) where T : IEntity =>
+    public void SetGlobalFilter<T>(BsonDocument document, bool prepend = false) where T : IEntity =>
         _globalFilter.Set<T>(document, prepend);
 }

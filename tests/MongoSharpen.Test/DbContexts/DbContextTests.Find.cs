@@ -4,19 +4,13 @@ using MongoDB.Driver;
 using MongoSharpen.Builders;
 using MongoSharpen.Test.Dtos;
 using MongoSharpen.Test.Entities;
-using MongoSharpen.Test.Fixtures;
 using Xunit;
 
 namespace MongoSharpen.Test.DbContexts;
 
 public partial class DbContextTests
 {
-    private readonly BookFixture _bookFixture;
 
-    public DbContextTests(BookFixture bookFixture)
-    {
-        _bookFixture = bookFixture;
-    }
 
     [Fact]
     public async Task find__with_no_projection__when_no_filters__should_get_all()

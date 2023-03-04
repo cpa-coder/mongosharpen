@@ -1,13 +1,11 @@
 ﻿services:
-  mongo-sharpen-db:
-    hostname: mongo-sharpen-db
+  mongo-sharpen:
+    hostname: mongo-sharpen
     image: mongo
     expose:
       - 27017
     ports:
-      - 30060:27017
-    volumes:
-      - mongo-sharpen-data:/data/db
+      - 41253:27017
     networks:
       mongo_net:
         ipv4_address: 10.0.10.3
@@ -17,12 +15,12 @@
     image: mongo
     restart: 'no'
     depends_on:
-      - mongo-sharpen-db
+      - mongo-sharpen
     networks:
       mongo_net:
         ipv4_address: 10.0.10.4
     command: >
-      mongosh --host mongo-sharpen-db:27017 --eval
+      mongosh --host mongo-sharpen:27017 --eval
       '
       db = (new Mongo("10.0.10.3:27017")).getDB("admin");
       config = {
@@ -30,14 +28,12 @@
       "members" : [
         {
           "_id" : 0,
-          "host" : "mongo-sharpen-db:27017"
+          "host" : "mongo-sharpen:27017"
         }
       ]
       };
       rs.initiate(config);
       '
-volumes:
-  mongo-sharpen-data:
 
 networks:
   mongo_net:
