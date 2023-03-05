@@ -8,7 +8,7 @@ public interface IDelete<T> where T : IEntity
 {
     Task<DeleteResult> ExecuteManyAsync(bool forceDelete = false, CancellationToken token = default);
     Task<DeleteResult> ExecuteOneAsync(bool forceDelete = false, CancellationToken token = default);
-    Task<T> GetAndExecuteAsync(bool forceDelete = false, CancellationToken token = default);
+    Task<T?> GetAndExecuteAsync(bool forceDelete = false, CancellationToken token = default);
 }
 
 internal sealed class Delete<T> : IDelete<T> where T : IEntity
@@ -58,7 +58,7 @@ internal sealed class Delete<T> : IDelete<T> where T : IEntity
         };
     }
 
-    public async Task<T> GetAndExecuteAsync(bool forceDelete = false, CancellationToken token = default)
+    public async Task<T?> GetAndExecuteAsync(bool forceDelete = false, CancellationToken token = default)
     {
         if (!forceDelete && Cache<T>.Get().ForSystemGeneration)
             _filters &= Builders<T>.Filter.Eq(x => ((ISystemGenerated) x).SystemGenerated, false);
@@ -82,7 +82,7 @@ internal sealed class Delete<T> : IDelete<T> where T : IEntity
 public interface IDelete<T, TProjection> where T : IEntity
 {
     IDelete<T, TProjection> Project(Expression<Func<T, TProjection>> expression);
-    Task<TProjection> GetAndExecuteAsync(bool forceDelete = false, CancellationToken token = default);
+    Task<TProjection?> GetAndExecuteAsync(bool forceDelete = false, CancellationToken token = default);
 }
 
 internal sealed class Delete<T, TProjection> : IDelete<T, TProjection> where T : IEntity
@@ -111,7 +111,7 @@ internal sealed class Delete<T, TProjection> : IDelete<T, TProjection> where T :
         return this;
     }
 
-    public async Task<TProjection> GetAndExecuteAsync(bool forceDelete = false, CancellationToken token = default)
+    public async Task<TProjection?> GetAndExecuteAsync(bool forceDelete = false, CancellationToken token = default)
     {
         if (_options.Projection == null) throw new InvalidOperationException("Projection not set");
 

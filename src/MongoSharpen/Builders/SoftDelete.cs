@@ -8,7 +8,7 @@ public interface ISoftDelete<T> where T : IEntity, IDeleteOn
 {
     Task<DeleteResult> ExecuteManyAsync(string userId, bool forceDelete = false, CancellationToken token = default);
     Task<DeleteResult> ExecuteOneAsync(string userId, bool forceDelete = false, CancellationToken token = default);
-    Task<T> ExecuteAndGetAsync(string userId, bool forceDelete = false, CancellationToken token = default);
+    Task<T?> ExecuteAndGetAsync(string userId, bool forceDelete = false, CancellationToken token = default);
 }
 
 internal class SoftDelete<T> : ISoftDelete<T> where T : IEntity, IDeleteOn
@@ -76,7 +76,7 @@ internal class SoftDelete<T> : ISoftDelete<T> where T : IEntity, IDeleteOn
         };
     }
 
-    public async Task<T> ExecuteAndGetAsync(string userId, bool forceDelete = false, CancellationToken token = default)
+    public async Task<T?> ExecuteAndGetAsync(string userId, bool forceDelete = false, CancellationToken token = default)
     {
         if (!forceDelete) _filters &= Builders<T>.Filter.Eq(t => t.SystemGenerated, false);
         _filters = _context.MergeWithGlobalFilter(_filters);
@@ -100,7 +100,7 @@ internal class SoftDelete<T> : ISoftDelete<T> where T : IEntity, IDeleteOn
 public interface ISoftDelete<T, TProjection> where T : IEntity, IDeleteOn
 {
     ISoftDelete<T, TProjection> Project(Expression<Func<T, TProjection>> expression);
-    Task<TProjection> ExecuteAndGetAsync(string userId, bool forceDelete = false, CancellationToken token = default);
+    Task<TProjection?> ExecuteAndGetAsync(string userId, bool forceDelete = false, CancellationToken token = default);
 }
 
 internal class SoftDelete<T, TProjection> : ISoftDelete<T, TProjection> where T : IEntity, IDeleteOn
@@ -129,7 +129,7 @@ internal class SoftDelete<T, TProjection> : ISoftDelete<T, TProjection> where T 
         return this;
     }
 
-    public async Task<TProjection> ExecuteAndGetAsync(string userId, bool forceDelete = false, CancellationToken token = default)
+    public async Task<TProjection?> ExecuteAndGetAsync(string userId, bool forceDelete = false, CancellationToken token = default)
     {
         if (!forceDelete) _filters &= Builders<T>.Filter.Eq(t => t.SystemGenerated, false);
         _filters = _context.MergeWithGlobalFilter(_filters);
