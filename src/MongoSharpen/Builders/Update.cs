@@ -9,7 +9,7 @@ public interface IUpdate<T> where T : IEntity
     IUpdate<T> Modify(Action<List<UpdateDefinition<T>>> updateAction);
     IUpdate<T> Modify(IEnumerable<UpdateDefinition<T>> updateDefinitions);
     Task<UpdateResult> ExecuteAsync(CancellationToken token = default);
-    Task<T> ExecuteAndGetAsync(CancellationToken token = default);
+    Task<T?> ExecuteAndGetAsync(CancellationToken token = default);
 }
 
 internal sealed class Update<T> : IUpdate<T> where T : IEntity
@@ -60,7 +60,7 @@ internal sealed class Update<T> : IUpdate<T> where T : IEntity
         };
     }
 
-    public Task<T> ExecuteAndGetAsync(CancellationToken token = default)
+    public async Task<T?> ExecuteAndGetAsync(CancellationToken token = default)
     {
         if (Cache<T>.Get().HasModifiedOn) _updates.Set(b => b.CurrentDate(Cache<T>.Get().ModifiedOnPropName));
 
@@ -71,8 +71,8 @@ internal sealed class Update<T> : IUpdate<T> where T : IEntity
         _filters = _context.MergeWithGlobalFilter(_filters);
 
         return session == null
-            ? collection.FindOneAndUpdateAsync(_filters, update, _options, token)
-            : collection.FindOneAndUpdateAsync(session, _filters, update, _options, token);
+            ? await collection.FindOneAndUpdateAsync(_filters, update, _options, token)
+            : await collection.FindOneAndUpdateAsync(session, _filters, update, _options, token);
     }
 }
 
@@ -80,7 +80,7 @@ public interface IUpdate<T, TProjection> where T : IEntity
 {
     IUpdate<T, TProjection> Modify(Action<List<UpdateDefinition<T>>> updateAction);
     IUpdate<T, TProjection> Project(Expression<Func<T, TProjection>> expression);
-    Task<TProjection> ExecuteAndGetAsync(CancellationToken token = default);
+    Task<TProjection?> ExecuteAndGetAsync(CancellationToken token = default);
 }
 
 internal sealed class Update<T, TProjection> : IUpdate<T, TProjection> where T : IEntity
@@ -116,7 +116,7 @@ internal sealed class Update<T, TProjection> : IUpdate<T, TProjection> where T :
         return this;
     }
 
-    public Task<TProjection> ExecuteAndGetAsync(CancellationToken token = default)
+    public async Task<TProjection?> ExecuteAndGetAsync(CancellationToken token = default)
     {
         if (_options.Projection == null) throw new InvalidOperationException("Projection not set");
 
@@ -129,7 +129,7 @@ internal sealed class Update<T, TProjection> : IUpdate<T, TProjection> where T :
         _filters = _context.MergeWithGlobalFilter(_filters);
 
         return session == null
-            ? collection.FindOneAndUpdateAsync(_filters, update, _options, token)
-            : collection.FindOneAndUpdateAsync(session, _filters, update, _options, token);
+            ? await collection.FindOneAndUpdateAsync(_filters, update, _options, token)
+            : await collection.FindOneAndUpdateAsync(session, _filters, update, _options, token);
     }
 }
