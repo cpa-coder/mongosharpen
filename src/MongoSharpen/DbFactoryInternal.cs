@@ -8,38 +8,37 @@ namespace MongoSharpen;
 internal sealed class DbFactoryInternal : IDbFactory
 {
     private readonly GlobalFilter _globalFilter;
-    private readonly IConventionRegistryWrapper _registryWrapper;
 
     /// <summary>
     ///     Instantiate DbFactory for internal testing
     /// </summary>
-    public DbFactoryInternal(IConventionRegistryWrapper registryWrapper)
+    public DbFactoryInternal()
     {
-        _registryWrapper = registryWrapper;
         DbContexts = new List<IDbContext>();
-        _conventions = new Dictionary<string, ConventionPack>
+        _conventions = new Dictionary<string, IConvention>
         {
-            { "camelCase", new ConventionPack { new CamelCaseElementNameConvention() } }
+            { "camelCase", new CamelCaseElementNameConvention() },
         };
         _globalFilter = new GlobalFilter();
     }
 
-    private bool _conventionsRegistered;
-    private readonly Dictionary<string, ConventionPack> _conventions;
+    public bool HasRegisteredConventions { get; private set; }
 
-    public void AddConvention(string name, ConventionPack pack)
+    private readonly Dictionary<string, IConvention> _conventions;
+
+    public void AddConvention(string name, IConvention convention)
     {
-        if (_conventionsRegistered)
+        if (HasRegisteredConventions)
             throw new InvalidOperationException(
                 "All conventions are already registered. Make sure to add or remove convention pack " +
                 $"before getting any {nameof(DbContext)} in the {nameof(DbFactory)}.");
 
-        _conventions.TryAdd(name, pack);
+        _conventions.TryAdd(name, convention);
     }
 
     public void RemoveConvention(string name)
     {
-        if (_conventionsRegistered)
+        if (HasRegisteredConventions)
             throw new InvalidOperationException(
                 "All conventions are already registered. Make sure to add or remove convention pack " +
                 $"before getting any {nameof(DbContext)} in the {nameof(DbFactory)}.");
@@ -49,9 +48,12 @@ internal sealed class DbFactoryInternal : IDbFactory
 
     private void RegisterConventions()
     {
-        foreach (var convention in _conventions) _registryWrapper.Register(convention.Key, convention.Value);
+        var pack = new ConventionPack();
+        pack.AddRange(_conventions.Select(x => x.Value));
 
-        _conventionsRegistered = true;
+        ConventionRegistry.Register("conventions", pack, _ => true);
+
+        HasRegisteredConventions = true;
     }
 
     public List<string> ConventionNames => _conventions.Keys.ToList();
@@ -119,7 +121,7 @@ internal sealed class DbFactoryInternal : IDbFactory
         if (string.IsNullOrEmpty(DefaultConnection))
             throw new InvalidOperationException("No default connection has been setup");
 
-        if (!_conventionsRegistered) RegisterConventions();
+        if (!HasRegisteredConventions) RegisterConventions();
 
         var context = new DbContext(database, DefaultConnection, ignoreGlobalFilter, _globalFilter);
         DbContexts.Add(context);
@@ -136,7 +138,7 @@ internal sealed class DbFactoryInternal : IDbFactory
     /// <returns></returns>
     public IDbContext Get(string database, string connection, bool ignoreGlobalFilter = false)
     {
-        if (!_conventionsRegistered) RegisterConventions();
+        if (!HasRegisteredConventions) RegisterConventions();
 
         var context = new DbContext(database, connection, ignoreGlobalFilter, _globalFilter);
         DbContexts.Add(context);

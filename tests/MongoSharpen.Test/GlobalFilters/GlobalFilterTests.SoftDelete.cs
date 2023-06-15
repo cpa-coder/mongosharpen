@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Bogus;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -14,16 +13,13 @@ public sealed partial class GlobalFilterTests
     [Fact]
     public async Task global_filter_json__on_soft_delete_and_execute_one__should_not_delete_filtered_item()
     {
-        var conn = Environment.GetEnvironmentVariable("MONGOSHARPEN") ?? "mongodb://localhost:27107";
-        var factory = new DbFactoryInternal(new ConventionRegistryWrapper()) { DefaultConnection = conn };
-
+        var factory = InitializeFactory();
         factory.SetGlobalFilter<IDeleteOn>("{ deleted : false }", Assembly.GetAssembly(typeof(Book))!);
 
-        var faker = new Faker();
         var book = new Book
         {
-            Title = $"Title-{faker.Commerce.Department()}",
-            ISBN = faker.Vehicle.Model(),
+            Title = "Title-Book",
+            ISBN = "123123",
             Deleted = true
         };
 
@@ -32,7 +28,6 @@ public sealed partial class GlobalFilterTests
 
         var result = await context.SoftDelete<Book>(x => x.Match(i => i.Title.Contains("-")))
             .ExecuteOneAsync(ObjectId.GenerateNewId().ToString());
-        await context.DropDataBaseAsync();
 
         result.DeletedCount.Should().Be(0);
     }
@@ -40,31 +35,21 @@ public sealed partial class GlobalFilterTests
     [Fact]
     public async Task global_filter_definition__on_soft_delete_and_execute_many__should_not_delete_filtered_item()
     {
-        var conn = Environment.GetEnvironmentVariable("MONGOSHARPEN") ?? "mongodb://localhost:27107";
-        var factory = new DbFactoryInternal(new ConventionRegistryWrapper()) { DefaultConnection = conn };
-
+        var factory = InitializeFactory();
         factory.SetGlobalFilter(Builders<Book>.Filter.Eq(x => x.Deleted, false));
 
-        var faker = new Faker();
-        var books = new List<Book>();
-        for (var i = 1; i <= 10; i++)
+        var books = new List<Book>
         {
-            var oddOrEven = i % 2 != 0 ? "odd" : "even";
-            var book = new Book
-            {
-                Title = $"{oddOrEven}-{faker.Commerce.Department()}",
-                ISBN = faker.Vehicle.Model(),
-                Deleted = faker.Random.Bool()
-            };
-            books.Add(book);
-        }
+            new() { Title = "Book-1", Deleted = true },
+            new() { Title = "Book-2", Deleted = false },
+            new() { Title = "Book-3", Deleted = false }
+        };
 
         var context = factory.Get(Guid.NewGuid().ToString());
         await context.SaveAsync(books);
 
         var result = await context.SoftDelete<Book>(x => x.Match(i => i.Title.Contains("-")))
             .ExecuteManyAsync(ObjectId.GenerateNewId().ToString());
-        await context.DropDataBaseAsync();
 
         result.DeletedCount.Should().Be(books.Count(x => !x.Deleted));
     }
@@ -72,16 +57,13 @@ public sealed partial class GlobalFilterTests
     [Fact]
     public async Task global_bson_document__on_soft_delete_and_get_and_execute__should_not_delete_filtered_item()
     {
-        var conn = Environment.GetEnvironmentVariable("MONGOSHARPEN") ?? "mongodb://localhost:27107";
-        var factory = new DbFactoryInternal(new ConventionRegistryWrapper()) { DefaultConnection = conn };
-
+        var factory = InitializeFactory();
         factory.SetGlobalFilter<Book>(new BsonDocument(new BsonElement("deleted", false)));
 
-        var faker = new Faker();
         var book = new Book
         {
-            Title = $"Title-{faker.Commerce.Department()}",
-            ISBN = faker.Vehicle.Model(),
+            Title = "Title-Book",
+            ISBN = "123123",
             Deleted = true
         };
 
@@ -89,25 +71,20 @@ public sealed partial class GlobalFilterTests
         await context.SaveAsync(book);
 
         var result = await context.SoftDelete<Book>(x => x.Match(i => i.Title.Contains("-"))).ExecuteAndGetAsync(book.Id);
-        await context.DropDataBaseAsync();
 
         result.Should().BeNull();
     }
 
     [Fact]
-    public async Task
-        global_filter_json__on_soft_delete_execute_and_get_with_projection_and_execute__should_not_delete_filtered_item()
+    public async Task global_filter_json__on_soft_delete_execute_and_get_with_projection__should_not_delete_filtered_item()
     {
-        var conn = Environment.GetEnvironmentVariable("MONGOSHARPEN") ?? "mongodb://localhost:27107";
-        var factory = new DbFactoryInternal(new ConventionRegistryWrapper()) { DefaultConnection = conn };
-
+        var factory = InitializeFactory();
         factory.SetGlobalFilter<IDeleteOn>("{ deleted : false }", Assembly.GetAssembly(typeof(Book))!);
 
-        var faker = new Faker();
         var book = new Book
         {
-            Title = $"Title-{faker.Commerce.Department()}",
-            ISBN = faker.Vehicle.Model(),
+            Title = "Title-Book",
+            ISBN = "123123",
             Deleted = true
         };
 
@@ -119,6 +96,5 @@ public sealed partial class GlobalFilterTests
             .ExecuteAndGetAsync(ObjectId.GenerateNewId().ToString());
 
         result.Should().BeNull();
-        await context.DropDataBaseAsync();
     }
 }
