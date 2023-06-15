@@ -11,21 +11,26 @@ public interface IDbFactory
     ///     Adds a convention to the default <see cref="ConventionRegistry" />.
     /// </summary>
     /// <TIP>Add only before getting any <see cref="IDbContext" /> instance.</TIP>
-    /// <param name="name">Register pack name</param>
-    /// <param name="pack">Actual convention pack</param>
-    void AddConvention(string name, ConventionPack pack);
+    /// <param name="name">Register convention name</param>
+    /// <param name="convention">A convention</param>
+    void AddConvention(string name, IConvention convention);
 
     /// <summary>
     ///     Removes a convention from the default <see cref="ConventionRegistry" />.
     /// </summary>
     /// <TIP>Remove only before getting any <see cref="IDbContext" /> instance.</TIP>
-    /// <param name="name">Registered pack name to remove</param>
+    /// <param name="name">Registered convention name to remove</param>
     void RemoveConvention(string name);
 
     /// <summary>
     ///     List of all conventions registered in the default <see cref="ConventionRegistry" />.
     /// </summary>
     List<string> ConventionNames { get; }
+    
+    /// <summary>
+    ///     Check if any convention has been registered.
+    /// </summary>
+    public bool HasRegisteredConventions { get; }
 
     /// <summary>
     ///     Get or set the default <see cref="IDbContext" /> connection.

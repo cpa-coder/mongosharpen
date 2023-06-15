@@ -1,31 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-
     <PropertyGroup>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>MongoSharpen</Title>
         <Authors>Ogie Galicia</Authors>
+        <Copyright>Ogie Galicia</Copyright>
         <Description>This library is a light weight MongoDB driver wrapper inspired by MongoDB.Entities for C# application</Description>
-        <PackageProjectUrl>https://debitexpress.jetbrains.space/p/consumable-packages/repositories/mongosharpen</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/cpa-coder/mongosharpen.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageTags>mongodb entities c#</PackageTags>
-        <AssemblyVersion>1.0.0</AssemblyVersion>
-        <FileVersion>1.0.0</FileVersion>
-        <PackageVersion>1.0.0</PackageVersion>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageTags>mongodb c#</PackageTags>
+        <Version>1.0.0</Version>
     </PropertyGroup>
-
+    
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <DocumentationFile>bin\Release\MongoSharpen.xml</DocumentationFile>
     </PropertyGroup>
-
+    
     <ItemGroup>
-        <PackageReference Include="MongoDB.Driver" Version="2.19.0" />
+        <PackageReference Include="MongoDB.Driver" Version="2.19.2" />
     </ItemGroup>
-
+    
+    <ItemGroup>
+        <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
 </Project>

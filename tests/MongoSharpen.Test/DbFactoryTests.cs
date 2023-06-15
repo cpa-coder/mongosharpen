@@ -2,7 +2,6 @@
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using MongoSharpen.Test.Entities;
-using Moq;
 using Moq.AutoMock;
 using Xunit;
 
@@ -30,8 +29,7 @@ public class DbFactoryTests
         var mocker = new AutoMocker();
         var factory = mocker.CreateInstance<DbFactoryInternal>();
 
-        var pack = new ConventionPack { new IgnoreIfNullConvention(true) };
-        factory.AddConvention("ignore if null", pack);
+        factory.AddConvention("ignore if null", new IgnoreIfNullConvention(true));
 
         var count = factory.ConventionNames.Count(c => c.Contains("ignore if null"));
         count.Should().Be(1);
@@ -46,8 +44,7 @@ public class DbFactoryTests
 
         factory.Get(RandomDb());
 
-        var pack = new ConventionPack { new IgnoreIfNullConvention(true) };
-        Assert.Throws<InvalidOperationException>(() => factory.AddConvention("ignore if null", pack));
+        Assert.Throws<InvalidOperationException>(() => factory.AddConvention("ignore if null", new IgnoreIfNullConvention(true)));
     }
 
     [Fact]
@@ -173,19 +170,6 @@ public class DbFactoryTests
     }
 
     [Fact]
-    public void on_get__conventions_should_be_registered()
-    {
-        var mocker = new AutoMocker();
-        var factory = mocker.CreateInstance<DbFactoryInternal>();
-        factory.DefaultConnection = ConnectionString;
-
-        factory.Get(RandomDb());
-
-        mocker.GetMock<IConventionRegistryWrapper>()
-            .Verify(m => m.Register(It.IsAny<string>(), It.IsAny<ConventionPack>()));
-    }
-
-    [Fact]
     public void on_get__should_always_get_new_db_context()
     {
         var mocker = new AutoMocker();
@@ -218,9 +202,7 @@ public class DbFactoryTests
 
         factory.Get(RandomDb(), ConnectionString);
 
-        mocker.GetMock<IConventionRegistryWrapper>()
-            .Verify(m => m.Register(It.IsAny<string>(), It.IsAny<ConventionPack>()),
-            Times.Exactly(factory.ConventionNames.Count));
+        factory.HasRegisteredConventions.Should().BeTrue();
     }
 
     [Fact]

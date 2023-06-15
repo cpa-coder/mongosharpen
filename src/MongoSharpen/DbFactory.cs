@@ -17,17 +17,17 @@ public static class DbFactory
     /// <summary>
     /// Get an instance of <see cref="IDbFactory"/>
     /// </summary>
-    public static IDbFactory Instance { get; } = new DbFactoryInternal(new ConventionRegistryWrapper());
+    public static IDbFactory Instance { get; } = new DbFactoryInternal();
 
     /// <summary>
     ///     Adds a convention to the default <see cref="ConventionRegistry" />.
     /// </summary>
     /// <TIP>Add only before getting any <see cref="IDbContext" /> instance.</TIP>
     /// <param name="name">Register pack name</param>
-    /// <param name="pack">Actual convention pack</param>
-    public static void AddConvention(string name, ConventionPack pack)
+    /// <param name="convention">A convention</param>
+    public static void AddConvention(string name, IConvention convention)
     {
-        Instance.AddConvention(name, pack);
+        Instance.AddConvention(name, convention);
     }
 
     /// <summary>
@@ -123,15 +123,4 @@ public static class DbFactory
     /// <typeparam name="T">Must be of type <see cref="IEntity" /></typeparam>
     public static void SetGlobalFilter<T>(BsonDocument document, bool prepend = false) where T : IEntity =>
         Instance.SetGlobalFilter<T>(document, prepend);
-}
-
-internal interface IConventionRegistryWrapper
-{
-    void Register(string name, IConventionPack conventions);
-}
-
-internal class ConventionRegistryWrapper : IConventionRegistryWrapper
-{
-    public void Register(string name, IConventionPack conventions)
-        => ConventionRegistry.Register(name, conventions, _ => true);
 }
