@@ -10,8 +10,6 @@ namespace MongoSharpen.Test.DbContexts;
 
 public partial class DbContextTests
 {
-
-
     [Fact]
     public async Task find__with_no_projection__when_no_filters__should_get_all()
     {

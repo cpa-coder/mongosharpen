@@ -8,11 +8,6 @@ namespace MongoSharpen;
 
 public interface IDbContext
 {
-    internal IMongoClient Client { get; }
-    internal IMongoDatabase Database { get; }
-    internal IClientSessionHandle? Session { get; set; }
-    internal FilterDefinition<T> MergeWithGlobalFilter<T>(FilterDefinition<T> filter) where T : IEntity;
-
     /// <summary>
     ///     Returns whether the database of this context exist in the database server.
     /// </summary>
@@ -307,12 +302,12 @@ public interface IDbContext
     IMongoCollection<T> Collection<T>() where T : IEntity;
 
     /// <summary>
-    /// Exposes the MongoDB's collection with a <see cref="BsonDocument"/>.
+    ///     Exposes the MongoDB's collection with a <see cref="BsonDocument" />.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
     IMongoCollection<BsonDocument> CollectionLog<T>() where T : IEntity;
-    
+
     /// <summary>
     ///     Exposes the MongoDB's <see cref="IMongoQueryable" />.
     /// </summary>

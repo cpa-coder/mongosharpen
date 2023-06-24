@@ -17,7 +17,7 @@ internal sealed class DbFactoryInternal : IDbFactory
         DbContexts = new List<IDbContext>();
         _conventions = new Dictionary<string, IConvention>
         {
-            { "camelCase", new CamelCaseElementNameConvention() },
+            { "camelCase", new CamelCaseElementNameConvention() }
         };
         _globalFilter = new GlobalFilter();
     }

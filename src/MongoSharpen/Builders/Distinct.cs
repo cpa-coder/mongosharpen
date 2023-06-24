@@ -11,17 +11,17 @@ public interface IDistinct<T, TProperty> where T : IEntity
 
 internal sealed class Distinct<T, TProperty> : IDistinct<T, TProperty> where T : IEntity
 {
-    private readonly IDbContext _context;
+    private readonly DbContext _context;
     private FieldDefinition<T, TProperty>? _field;
     private FilterDefinition<T> _filters;
 
-    public Distinct(IDbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
+    public Distinct(DbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
     {
         _context = context;
         _filters = filter.Invoke(Builders<T>.Filter);
     }
 
-    public Distinct(IDbContext context)
+    public Distinct(DbContext context)
     {
         _context = context;
         _filters = FilterDefinition<T>.Empty;

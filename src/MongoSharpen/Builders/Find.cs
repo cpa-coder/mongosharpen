@@ -28,19 +28,19 @@ public interface IFind<T> where T : IEntity
 
 internal sealed class Find<T> : IFind<T> where T : IEntity
 {
-    private readonly IDbContext _context;
+    private readonly DbContext _context;
     private FilterDefinition<T> _filters;
     private readonly List<SortDefinition<T>> _sorts = new();
     private readonly FindOptions<T, T> _options = new();
 
-    public Find(IDbContext context)
+    public Find(DbContext context)
     {
         _context = context;
         _options.Collation = new Collation("en_US");
         _filters = Builders<T>.Filter.Empty;
     }
 
-    public Find(IDbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
+    public Find(DbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
     {
         _context = context;
         _filters = filter.Invoke(Builders<T>.Filter);
@@ -188,19 +188,19 @@ public interface IFind<T, TProjection> where T : IEntity
 
 internal sealed class Find<T, TProjection> : IFind<T, TProjection> where T : IEntity
 {
-    private readonly IDbContext _context;
+    private readonly DbContext _context;
     private FilterDefinition<T> _filters;
     private readonly List<SortDefinition<T>> _sorts = new();
     private readonly FindOptions<T, TProjection> _options = new();
 
-    public Find(IDbContext context)
+    public Find(DbContext context)
     {
         _context = context;
         _options.Collation = new Collation("en_US");
         _filters = Builders<T>.Filter.Empty;
     }
 
-    public Find(IDbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
+    public Find(DbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
     {
         _context = context;
         _filters = filter.Invoke(Builders<T>.Filter);

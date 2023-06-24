@@ -11,7 +11,8 @@ public partial class DbContextTests
 {
     private static async Task<BsonElement> GetBsonElement<T>(IDbContext ctx, string id)
     {
-        var coll = Cache<T>.GetCollection<BsonDocument>(ctx, "log");
+        var context = ctx as DbContext;
+        var coll = Cache<T>.GetCollection<BsonDocument>(context!, "log");
 
         var filter = Builders<BsonDocument>.Filter.Empty;
         filter &= "{old_id:" + $"ObjectId(\'{id}\')" + "}";
@@ -24,7 +25,8 @@ public partial class DbContextTests
 
     private static async Task<int> GetBsonElementLogCount<T>(IDbContext ctx)
     {
-        var coll = Cache<T>.GetCollection<BsonDocument>(ctx, "log");
+        var context = ctx as DbContext;
+        var coll = Cache<T>.GetCollection<BsonDocument>(context!, "log");
 
         var filter = Builders<BsonDocument>.Filter.Empty;
         var cursor = await coll.FindAsync<BsonDocument>(filter);

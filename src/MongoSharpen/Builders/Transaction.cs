@@ -9,9 +9,9 @@ public interface ITransaction : IDisposable
 
 internal sealed class Transaction : ITransaction
 {
-    private readonly IDbContext _context;
+    private readonly DbContext _context;
 
-    public Transaction(IDbContext context, ClientSessionOptions? options = null)
+    public Transaction(DbContext context, ClientSessionOptions? options = null)
     {
         _context = context;
         _context.Session = _context.Client.StartSession(options);

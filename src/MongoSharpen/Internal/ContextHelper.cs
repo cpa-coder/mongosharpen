@@ -20,7 +20,7 @@ internal sealed class ContextHelper
 
     public static IMongoClient GetClient(string connection)
     {
-        if (Instance._clients.ContainsKey(connection)) return Instance._clients[connection];
+        if (Instance._clients.TryGetValue(connection, out var existing)) return existing;
 
         var settings = MongoClientSettings.FromConnectionString(connection);
         settings.LinqProvider = LinqProvider.V3;

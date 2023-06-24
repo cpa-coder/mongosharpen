@@ -34,8 +34,8 @@ public partial class DbContextTests : IClassFixture<BookFixture>
     public void start_transaction__session_should_not_be_null()
     {
         var randomDb = Guid.NewGuid().ToString();
-        var ctx = DbFactory.Get(randomDb);
-        using var trans = ctx.Transaction();
+        var ctx = DbFactory.Get(randomDb) as DbContext;
+        using var trans = ctx!.Transaction();
         ctx.Session.Should().NotBeNull();
     }
 
@@ -43,8 +43,8 @@ public partial class DbContextTests : IClassFixture<BookFixture>
     public void start_transaction__when_called_more_than_once__should_always_load_new_session()
     {
         var randomDb = Guid.NewGuid().ToString();
-        var ctx = DbFactory.Get(randomDb);
-        using var trans = ctx.Transaction();
+        var ctx = DbFactory.Get(randomDb) as DbContext;
+        using var trans = ctx!.Transaction();
         var session = ctx.Session;
 
         ctx.Transaction();
@@ -55,8 +55,8 @@ public partial class DbContextTests : IClassFixture<BookFixture>
     public async Task commit__when_no_transaction_started__should_throw_exception()
     {
         var randomDb = Guid.NewGuid().ToString();
-        var ctx = DbFactory.Get(randomDb);
-        using var trans = ctx.Transaction();
+        var ctx = DbFactory.Get(randomDb) as DbContext;
+        using var trans = ctx!.Transaction();
         ctx.Session = null;
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => trans.CommitAsync());
@@ -66,8 +66,8 @@ public partial class DbContextTests : IClassFixture<BookFixture>
     public async Task drop_database__should_delete_database()
     {
         var random = Guid.NewGuid().ToString();
-        var ctx = DbFactory.Get(random);
-        await ctx.Database.CreateCollectionAsync("test-collection");
+        var ctx = DbFactory.Get(random) as DbContext;
+        await ctx!.Database.CreateCollectionAsync("test-collection");
 
         var initiallyExist = await ctx.ExistAsync();
         initiallyExist.Should().BeTrue();
@@ -81,8 +81,8 @@ public partial class DbContextTests : IClassFixture<BookFixture>
     [Fact]
     public void collection__should_return_collection_of_type_with_the_same_database()
     {
-        var ctx = DbFactory.Get("library");
-        var collection = ctx.Collection<Book>();
+        var ctx = DbFactory.Get("library") as DbContext;
+        var collection = ctx!.Collection<Book>();
 
         collection.Database.Should().Be(ctx.Database);
     }

@@ -64,7 +64,7 @@ public class DbFactoryTests
         var mocker = new AutoMocker();
         var factory = mocker.CreateInstance<DbFactoryInternal>();
         factory.DefaultConnection = ConnectionString;
-        
+
         factory.Get(RandomDb());
 
         Assert.Throws<InvalidOperationException>(() => factory.RemoveConvention("camelCase"));
@@ -143,8 +143,8 @@ public class DbFactoryTests
         factory.DefaultConnection = ConnectionString;
         factory.DefaultDatabase = RandomDb();
 
-        var context = factory.Get();
-        context.Database.DatabaseNamespace.DatabaseName.Should().Be(factory.DefaultDatabase);
+        var context = factory.Get() as DbContext;
+        context!.Database.DatabaseNamespace.DatabaseName.Should().Be(factory.DefaultDatabase);
     }
 
     [Fact]
