@@ -14,12 +14,12 @@ public interface IUpdate<T> where T : IEntity
 
 internal sealed class Update<T> : IUpdate<T> where T : IEntity
 {
-    private readonly IDbContext _context;
+    private readonly DbContext _context;
     private FilterDefinition<T> _filters;
     private readonly List<UpdateDefinition<T>> _updates = new();
     private readonly FindOneAndUpdateOptions<T, T> _options;
 
-    public Update(IDbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
+    public Update(DbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
     {
         _context = context;
         _filters = filter.Invoke(Builders<T>.Filter);
@@ -85,12 +85,12 @@ public interface IUpdate<T, TProjection> where T : IEntity
 
 internal sealed class Update<T, TProjection> : IUpdate<T, TProjection> where T : IEntity
 {
-    private readonly IDbContext _context;
+    private readonly DbContext _context;
     private FilterDefinition<T> _filters;
     private readonly List<UpdateDefinition<T>> _updates = new();
     private readonly FindOneAndUpdateOptions<T, TProjection> _options;
 
-    public Update(IDbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
+    public Update(DbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
     {
         _context = context;
         _filters = filter.Invoke(Builders<T>.Filter);

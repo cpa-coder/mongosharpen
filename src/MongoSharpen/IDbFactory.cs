@@ -26,7 +26,7 @@ public interface IDbFactory
     ///     List of all conventions registered in the default <see cref="ConventionRegistry" />.
     /// </summary>
     List<string> ConventionNames { get; }
-    
+
     /// <summary>
     ///     Check if any convention has been registered.
     /// </summary>

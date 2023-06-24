@@ -15,7 +15,7 @@ public static class DbFactory
     }
 
     /// <summary>
-    /// Get an instance of <see cref="IDbFactory"/>
+    ///     Get an instance of <see cref="IDbFactory" />
     /// </summary>
     public static IDbFactory Instance { get; } = new DbFactoryInternal();
 

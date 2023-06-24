@@ -13,10 +13,10 @@ public interface IDelete<T> where T : IEntity
 
 internal sealed class Delete<T> : IDelete<T> where T : IEntity
 {
-    private readonly IDbContext _context;
+    private readonly DbContext _context;
     private FilterDefinition<T> _filters;
 
-    public Delete(IDbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
+    public Delete(DbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
     {
         _context = context;
         _filters = filter.Invoke(Builders<T>.Filter);
@@ -87,11 +87,11 @@ public interface IDelete<T, TProjection> where T : IEntity
 
 internal sealed class Delete<T, TProjection> : IDelete<T, TProjection> where T : IEntity
 {
-    private readonly IDbContext _context;
+    private readonly DbContext _context;
     private FilterDefinition<T> _filters;
     private readonly FindOneAndDeleteOptions<T, TProjection> _options;
 
-    public Delete(IDbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
+    public Delete(DbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> filter)
     {
         _context = context;
         _filters = filter.Invoke(Builders<T>.Filter);

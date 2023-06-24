@@ -7,16 +7,13 @@ namespace MongoSharpen;
 
 internal sealed partial class DbContext : IDbContext
 {
-    private readonly IMongoClient _client;
-    private readonly IMongoDatabase _database;
     private readonly bool _ignoreGlobalFilters;
     private readonly GlobalFilter _globalFilter;
 
-    IMongoClient IDbContext.Client => _client;
+    internal IMongoClient Client { get; }
 
-    IClientSessionHandle? IDbContext.Session { get; set; }
-
-    IMongoDatabase IDbContext.Database => _database;
+    internal IClientSessionHandle? Session { get; set; }
+    internal IMongoDatabase Database { get; }
 
     internal DbContext(string database,
         string connectionString,
@@ -25,16 +22,16 @@ internal sealed partial class DbContext : IDbContext
     {
         _globalFilter = globalFilter;
         _ignoreGlobalFilters = ignoreGlobalFilters;
-        _client = ContextHelper.GetClient(connectionString);
-        _database = _client.GetDatabase(database);
+        Client = ContextHelper.GetClient(connectionString);
+        Database = Client.GetDatabase(database);
     }
 
     public async Task<bool> ExistAsync()
     {
-        var databases = await _client.ListDatabaseNamesAsync();
+        var databases = await Client.ListDatabaseNamesAsync();
         var exist = false;
 
-        var currentDb = _database.DatabaseNamespace;
+        var currentDb = Database.DatabaseNamespace;
 
         while (await databases.MoveNextAsync())
         {
@@ -51,16 +48,13 @@ internal sealed partial class DbContext : IDbContext
 
     public Task DropDataBaseAsync(CancellationToken token = default)
     {
-        var database = _database.DatabaseNamespace;
-        return _client.DropDatabaseAsync(database.DatabaseName, token);
+        var database = Database.DatabaseNamespace;
+        return Client.DropDatabaseAsync(database.DatabaseName, token);
     }
 
     public IMongoCollection<T> Collection<T>() where T : IEntity => Cache<T>.GetCollection(this);
-    public IMongoCollection<BsonDocument> CollectionLog<T>() where T : IEntity => Cache<T>.GetCollection<BsonDocument>(this,"log");
+    public IMongoCollection<BsonDocument> CollectionLog<T>() where T : IEntity => Cache<T>.GetCollection<BsonDocument>(this, "log");
 
-    FilterDefinition<T> IDbContext.MergeWithGlobalFilter<T>(FilterDefinition<T> filter) =>
-        MergeFilterInternal(filter);
-
-    private FilterDefinition<T> MergeFilterInternal<T>(FilterDefinition<T> filter) =>
+    internal FilterDefinition<T> MergeWithGlobalFilter<T>(FilterDefinition<T> filter) =>
         _ignoreGlobalFilters ? filter : _globalFilter.Merge(filter);
 }

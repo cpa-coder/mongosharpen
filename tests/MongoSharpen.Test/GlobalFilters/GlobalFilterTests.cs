@@ -1,9 +1,7 @@
 using System.Reflection;
 using FluentAssertions;
-using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using MongoSharpen.Test.Entities;
-using Moq.AutoMock;
 using Xunit;
 
 namespace MongoSharpen.Test.GlobalFilters;
@@ -13,7 +11,7 @@ public sealed partial class GlobalFilterTests
 {
     private DbFactoryInternal InitializeFactory()
     {
-        var factory = new DbFactoryInternal()
+        var factory = new DbFactoryInternal
         {
             DefaultConnection = "mongodb://localhost:41253"
         };
@@ -36,10 +34,10 @@ public sealed partial class GlobalFilterTests
         var factory = InitializeFactory();
         factory.SetGlobalFilter(Builders<Book>.Filter.Eq(i => i.Deleted, false));
 
-        var context = factory.Get(Guid.NewGuid().ToString());
+        var context = factory.Get(Guid.NewGuid().ToString()) as DbContext;
         var filter = Builders<Author>.Filter.Eq(i => i.Deleted, false);
 
-        var result = context.MergeWithGlobalFilter(filter);
+        var result = context!.MergeWithGlobalFilter(filter);
 
         result.Should().BeEquivalentTo(filter);
     }

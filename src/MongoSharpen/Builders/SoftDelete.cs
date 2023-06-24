@@ -13,12 +13,12 @@ public interface ISoftDelete<T> where T : IEntity, IDeleteOn
 
 internal class SoftDelete<T> : ISoftDelete<T> where T : IEntity, IDeleteOn
 {
-    private readonly IDbContext _context;
+    private readonly DbContext _context;
     private FilterDefinition<T> _filters;
     private readonly List<UpdateDefinition<T>> _updates = new();
     private readonly FindOneAndUpdateOptions<T, T> _options = new() { ReturnDocument = ReturnDocument.After };
 
-    public SoftDelete(IDbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
+    public SoftDelete(DbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
     {
         _context = context;
         _filters = expression(Builders<T>.Filter);
@@ -105,12 +105,12 @@ public interface ISoftDelete<T, TProjection> where T : IEntity, IDeleteOn
 
 internal class SoftDelete<T, TProjection> : ISoftDelete<T, TProjection> where T : IEntity, IDeleteOn
 {
-    private readonly IDbContext _context;
+    private readonly DbContext _context;
     private FilterDefinition<T> _filters;
     private readonly List<UpdateDefinition<T>> _updates = new();
     private readonly FindOneAndUpdateOptions<T, TProjection> _options = new() { ReturnDocument = ReturnDocument.After };
 
-    public SoftDelete(IDbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
+    public SoftDelete(DbContext context, Func<FilterDefinitionBuilder<T>, FilterDefinition<T>> expression)
     {
         _context = context;
         _filters = expression(Builders<T>.Filter);

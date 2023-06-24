@@ -30,7 +30,7 @@ internal sealed class Cache<T>
 
     public static Cache<T> Get() => Instance.Value;
 
-    public static IMongoCollection<T> GetCollection(IDbContext context) =>
+    public static IMongoCollection<T> GetCollection(DbContext context) =>
         context.Database.GetCollection<T>(GetCollectionName());
 
     private static string GetCollectionName()
@@ -45,6 +45,6 @@ internal sealed class Cache<T>
     }
 
     // use for logging using bson document
-    public static IMongoCollection<TDocument> GetCollection<TDocument>(IDbContext context, string documentSuffix) =>
+    public static IMongoCollection<TDocument> GetCollection<TDocument>(DbContext context, string documentSuffix) =>
         context.Database.GetCollection<TDocument>($"{GetCollectionName()}.{documentSuffix}");
 }
