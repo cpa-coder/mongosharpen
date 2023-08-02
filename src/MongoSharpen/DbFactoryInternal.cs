@@ -33,7 +33,8 @@ internal sealed class DbFactoryInternal : IDbFactory
                 "All conventions are already registered. Make sure to add or remove convention pack " +
                 $"before getting any {nameof(DbContext)} in the {nameof(DbFactory)}.");
 
-        _conventions.TryAdd(name, convention);
+        if(!_conventions.ContainsKey(name))
+            _conventions.Add(name, convention);
     }
 
     public void RemoveConvention(string name)

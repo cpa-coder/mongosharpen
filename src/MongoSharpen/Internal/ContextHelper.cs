@@ -26,8 +26,11 @@ internal sealed class ContextHelper
         settings.LinqProvider = LinqProvider.V3;
 
         var client = new MongoClient(settings);
-        Instance._clients.TryAdd(connection, client);
 
-        return client;
+       if(Instance._clients.TryGetValue(connection, out var existingClient))
+            return existingClient;
+
+       Instance._clients.Add(connection, client);
+       return client;
     }
 }
