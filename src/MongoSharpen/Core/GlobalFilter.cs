@@ -18,7 +18,8 @@ internal sealed class GlobalFilter
 
     private void AddFilter(Type type, (object filterDef, bool prepend) filter)
     {
-        _filters.TryAdd(type, filter);
+        if (!_filters.ContainsKey(type))
+            _filters.Add(type, filter);
     }
 
     private void RegisterAssembly(Assembly assembly)
@@ -30,7 +31,8 @@ internal sealed class GlobalFilter
             if (typeof(IEntity).IsAssignableFrom(type))
                 _entityTypes.Add(type);
 
-        if (assembly.FullName != null) _assemblies.Add(assembly.FullName);
+        if (!string.IsNullOrEmpty(assembly.FullName))
+            _assemblies.Add(assembly.FullName);
     }
 
     internal void Set<T>(string jsonString, Assembly assembly, bool prepend = false)
