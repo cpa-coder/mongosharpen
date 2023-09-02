@@ -3,7 +3,7 @@ using MongoDB.Driver;
 
 namespace MongoSharpen;
 
-public static class FilterExtension
+public static class FilterExtensions
 {
     public static FilterDefinition<T> MatchId<T>(this FilterDefinition<T> filter, string id) where T : IEntity
     {

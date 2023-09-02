@@ -4,7 +4,7 @@ using MongoSharpen.Builders;
 
 namespace MongoSharpen;
 
-public static class SortExtension
+public static class SortExtensions
 {
     public static List<SortDefinition<T>> By<T>(this List<SortDefinition<T>> definitions,
         Func<SortDefinitionBuilder<T>, SortDefinition<T>> sortFunction) where T : IEntity
