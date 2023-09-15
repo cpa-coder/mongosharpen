@@ -11,14 +11,14 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <PackageReference Include="AutoSub" Version="1.1.0" />
+        <PackageReference Include="AutoSub" Version="1.1.1" />
         <PackageReference Include="Bogus" Version="34.0.2" />
         <PackageReference Include="Ductus.FluentDocker" Version="2.10.59" />
-        <PackageReference Include="fluentassertions" Version="6.11.0" />
+        <PackageReference Include="fluentassertions" Version="6.12.0" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
-        <PackageReference Include="NSubstitute" Version="5.0.0" />
+        <PackageReference Include="NSubstitute" Version="5.1.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
         <PackageReference Include="xunit" Version="2.5.0" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
